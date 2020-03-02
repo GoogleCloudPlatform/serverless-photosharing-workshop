@@ -60,8 +60,3 @@ const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
     console.log(`Started thumbnail generator on port ${PORT}`);
 });
-
-/*
-{"name": "image.png", "bucket": "bucketname"}
-{"data": "eyJuYW1lIjogImltYWdlLnBuZyIsICJidWNrZXQiOiAiYnVja2V0bmFtZSJ9"}
-*/
