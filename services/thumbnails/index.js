@@ -22,11 +22,6 @@ const storage = new Storage();
 const app = express();
 app.use(bodyParser.json());
 
-app.get('/', async (req, res) => {
-    console.log("It works");
-    res.status(200).send("Works");
-});
-
 app.post('/', async (req, res) => {
     try {
         const pubSubMessage = req.body;
