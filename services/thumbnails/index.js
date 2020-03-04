@@ -34,25 +34,24 @@ app.post('/', async (req, res) => {
         const bucket = storage.bucket(fileEvent.bucket);
         const thumbBucket = storage.bucket('thumbnail-pictures');
 
-        const localFile = path.resolve('/tmp', fileEvent.name);
-        const parsedPath = path.parse(localFile);
-        const thumbPath = path.resolve(parsedPath.dir, parsedPath.name) + '_thumb' + parsedPath.ext;
+        const originalFile = path.resolve('/tmp/original', fileEvent.name);
+        const thumbFile = path.resolve('/tmp/thumbnail', fileEvent.name);
 
         await bucket.file(fileEvent.name).download({
-            destination: localFile
+            destination: originalFile
         });
-        console.log(`Downloaded picture into ${localFile}`);
+        console.log(`Downloaded picture into ${originalFile}`);
 
         const resize = Promise.promisify(im.resize);
         await resize({
-                srcPath: localFile,
-                dstPath: thumbPath,
+                srcPath: originalFile,
+                dstPath: thumbFile,
                 width: 200,
                 height: 200         
         });
-        console.log(`Created local thumbnail in ${thumbPath}`);
+        console.log(`Created local thumbnail in ${thumbFile}`);
 
-        await thumbBucket.upload(thumbPath);
+        await thumbBucket.upload(thumbFile);
         console.log("Uploaded thumbnail to Cloud Storage");
 
         res.status(204).send(`${fileEvent.name} processed`);
