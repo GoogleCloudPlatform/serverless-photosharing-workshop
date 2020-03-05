@@ -35,40 +35,41 @@ app.post('/', async (req, res) => {
         const snapshot = await pictureStore.orderBy('created', 'desc').limit(4).get();
 
         if (snapshot.empty) {
-            console.log('Empty collection');
+            console.log('Empty collection, no collage to make');
+            res.status(204).send("No collage created.");
         } else {
             snapshot.forEach(doc => {
                 thumbnailFiles.push(doc.id);
             });
+            console.log(`Picture file names: ${JSON.stringify(thumbnailFiles)}`);
+
+            const thumbBucket = storage.bucket('thumbnail-pictures');
+
+            await Promise.all(thumbnailFiles.map(async fileName => {
+                const filePath = path.resolve('/tmp', fileName);
+                await thumbBucket.file(fileName).download({
+                    destination: filePath
+                });
+                console.log(`Downloaded ${fileName}`);
+            }));
+            console.log('Downloaded all thumbnails');
+
+            const collagePath = path.resolve('/tmp', 'collage.png');
+
+            const thumbnailPaths = thumbnailFiles.map(f => path.resolve('/tmp', f));
+            const convert = Promise.promisify(im.convert);
+            await convert([
+                '(', ...thumbnailPaths.slice(0, 2), '+append', ')',
+                '(', ...thumbnailPaths.slice(2), '+append', ')',
+                '-size', '400x400', 'xc:none', '-background', 'none',  '-append',
+                collagePath]);
+            console.log("Created local collage picture");
+
+            await thumbBucket.upload(collagePath);
+            console.log("Uploaded collage to Cloud Storage");
+
+            res.status(204).send("Collage created.");
         }
-        console.log(`Picture file names: ${JSON.stringify(thumbnailFiles)}`);
-
-        const thumbBucket = storage.bucket('thumbnail-pictures');
-
-        await Promise.all(thumbnailFiles.map(async fileName => {
-            const filePath = path.resolve('/tmp', fileName);
-            await thumbBucket.file(fileName).download({
-                destination: filePath
-            });
-            console.log(`Downloaded ${fileName}`);
-        }));
-        console.log('Downloaded all thumbnails');
-
-        const collagePath = path.resolve('/tmp', 'collage.png');
-
-        const thumbnailPaths = thumbnailFiles.map(f => path.resolve('/tmp', f));
-        const convert = Promise.promisify(im.convert);
-        await convert([
-            '(', ...thumbnailPaths.slice(0, 2), '+append', ')',
-            '(', ...thumbnailPaths.slice(2), '+append', ')',
-            '-size', '400x400', 'xc:none', '-background', 'none',  '-append',
-            collagePath]);
-        console.log("Created local collage picture");
-
-        await thumbBucket.upload(collagePath);
-        console.log("Uploaded collage to Cloud Storage");
-
-        res.status(204).send("Collage created.");
     } catch (err) {
         console.log(`Error: creating the collage: ${err}`);
         console.error(err);
