@@ -21,11 +21,6 @@ const Firestore = require('@google-cloud/firestore');
 
 const app = express();
 
-app.get('/', async (req, res) => {
-    console.log("It works");
-    res.status(200).send("Works");
-});
-
 app.post('/', async (req, res) => {
     try {
         console.log('Collage request');
