@@ -42,10 +42,10 @@ app.post('/', async (req, res) => {
 
             await Promise.all(thumbnailFiles.map(async fileName => {
                 const filePath = path.resolve('/tmp', fileName);
+                console.log(`Downloading ${fileName}...`);
                 await thumbBucket.file(fileName).download({
                     destination: filePath
                 });
-                console.log(`Downloaded ${fileName}`);
             }));
             console.log('Downloaded all thumbnails');
 
