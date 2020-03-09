@@ -12,12 +12,39 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 const express = require('express');
+const Firestore = require('@google-cloud/firestore');
+const dayjs = require('dayjs');
+const relativeTime = require('dayjs/plugin/relativeTime')
+dayjs.extend(relativeTime)
 
 const app = express();
+app.use(express.static('public'));
 
-app.get('/', async (req, res) => {
-    res.send('Welcome');
-});
+app.get('/', express.static('index.html'));
+
+app.get('/api/pictures', async (req, res) => {
+    console.log('Retrieving list of pictures');
+
+    const thumbnails = [];
+    const pictureStore = new Firestore().collection('pictures');
+    const snapshot = await pictureStore.orderBy('created', 'desc').get();
+
+    if (snapshot.empty) {
+        console.log('No pictures found');
+    } else {
+        snapshot.forEach(doc => {
+            const pic = doc.data();
+            thumbnails.push({
+                name: doc.id,
+                labels: pic.labels,
+                color: pic.color,
+                created: dayjs(pic.created.toDate()).fromNow()
+            });
+        });
+    }
+    console.table(thumbnails);
+    res.send(thumbnails);
+})
 
 const PORT = process.env.PORT || 8080;
 
