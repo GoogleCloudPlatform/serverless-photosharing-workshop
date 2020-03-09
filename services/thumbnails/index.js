@@ -42,12 +42,12 @@ app.post('/', async (req, res) => {
         });
         console.log(`Downloaded picture into ${originalFile}`);
 
-        const resize = Promise.promisify(im.resize);
-        await resize({
+        const resizeCrop = Promise.promisify(im.crop);
+        await resizeCrop({
                 srcPath: originalFile,
                 dstPath: thumbFile,
-                width: 200,
-                height: 200         
+                width: 400,
+                height: 400
         });
         console.log(`Created local thumbnail in ${thumbFile}`);
 
