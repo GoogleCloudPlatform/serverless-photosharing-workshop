@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Picadaily Serverless Workshop</title>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
+	<link rel="stylesheet" href="style.css">
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+</head>
+
+<body>
+	<section class="hero is-info">
+		<div class="hero-body">
+			<div class="container">
+				<h1 class="title">
+					<i class="fas fa-image"></i> &nbsp;
+					Picadaily Serverless Workshop
+				</h1>
+			</div>
+		</div>
+		<nav class="navbar has-background-dark" role="navigation" aria-label="main navigation">
+			<div class="navbar-menu">
+				<a class="navbar-item has-text-white" href="/">
+					<i class="fas fa-home"></i> &nbsp;
+					Home
+				</a>
+				<a class="navbar-item has-text-white" href="/collage.html">
+					<i class="fas fa-cubes"></i> &nbsp;
+					Collage
+				</a>
+				<a class="navbar-item has-text-white" href="/upload.html">
+					<i class="fas fa-upload"></i> &nbsp;
+					Upload
+				</a>
+			</div>
+		</nav>
+	</section>
+	<section class="section">
+		<div class="container" id="upload">
+            <form method="POST" action="/api/pictures" enctype="multipart/form-data">
+                <div class="field">
+                    <div class="file is-boxed">
+                        <label class="file-label">
+                            <input class="file-input" type="file" name="picture">
+                            <span class="file-cta">
+                                <span class="file-icon">
+                                    <i class="fas fa-upload"></i>
+                                </span>
+                                <span class="file-label">
+                                    Choose a file...
+                                </span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="control is-centered">
+                        <button class="button is-link">Submit</button>
+                    </div>
+                </div>
+            </form>
+		</div>
+	</section>
+</body>
+
+</html>

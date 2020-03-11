@@ -11,16 +11,44 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 const express = require('express');
+const fileUpload = require('express-fileupload');
 const Firestore = require('@google-cloud/firestore');
+const Promise = require("bluebird");
+const {Storage} = require('@google-cloud/storage');
+const storage = new Storage();
+const path = require('path');
 const dayjs = require('dayjs');
 const relativeTime = require('dayjs/plugin/relativeTime')
 dayjs.extend(relativeTime)
 
 const app = express();
 app.use(express.static('public'));
+app.use(fileUpload({
+    liimits: { fileSize: 10 * 1024 * 1024 },
+    useTempFiles : true,
+    tempFileDir : '/tmp/'
+}))
 
-app.get('/', express.static('index.html'));
+app.post('/api/pictures', async (req, res) => {
+    if (!req.files || Object.keys(req.files).length === 0) {
+        console.log("No file uploaded");
+        return res.status(400).send('No file was uploaded.');
+    }
+    console.log(`Receiving file ${JSON.stringify(req.files.picture)}`);
+
+    const newPicture = path.resolve('/tmp', req.files.picture.name);
+    const mv = Promise.promisify(req.files.picture.mv);
+    await mv(newPicture);
+    console.log('File moved in temporary directory');
+
+    const pictureBucket = storage.bucket('uploaded-pictures');
+    await pictureBucket.upload(newPicture);
+    console.log("Uploaded new picture into Cloud Storage");
+
+    res.redirect('/');
+});
 
 app.get('/api/pictures', async (req, res) => {
     console.log('Retrieving list of pictures');
@@ -44,10 +72,10 @@ app.get('/api/pictures', async (req, res) => {
     }
     console.table(thumbnails);
     res.send(thumbnails);
-})
+});
 
 const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, () => {
-    console.log(`Started collage service on port ${PORT}`);
+    console.log(`Started web frontend service on port ${PORT}`);
 });
