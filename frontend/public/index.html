@@ -48,8 +48,8 @@
 						<div class="card-content">
 							<div class="content">
 								<div class="image-border" :style="{ 'border-color': pic.color }">
-									<a :href="'https://storage.cloud.google.com/uploaded-pictures/' + pic.name">
-										<img :src="'https://storage.cloud.google.com/thumbnail-pictures/' + pic.name">
+									<a :href="'/api/pictures/' + pic.name">
+										<img :src="'/api/thumbnails/' + pic.name">
                                 </a>
 								</div>
 								<a class="panel-block" v-for="label in pic.labels">

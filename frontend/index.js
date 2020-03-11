@@ -74,8 +74,22 @@ app.get('/api/pictures', async (req, res) => {
     res.send(thumbnails);
 });
 
+app.get('/api/pictures/:name', async (req, res) => {
+    res.redirect(`https://storage.cloud.google.com/${process.env.BUCKET_PICTURES}/${req.params.name}`);
+});
+
+app.get('/api/thumbnails/:name', async (req, res) => {
+    res.redirect(`https://storage.cloud.google.com/${process.env.BUCKET_THUMBNAILS}/${req.params.name}`);
+});
+
+app.get('/api/collage', async (req, res) => {
+    res.redirect(`https://storage.cloud.google.com/${process.env.BUCKET_THUMBNAILS}/collage.png`);
+});
+
 const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, () => {
     console.log(`Started web frontend service on port ${PORT}`);
+    console.log(`- Pictures bucket = ${process.env.BUCKET_PICTURES}`);
+    console.log(`- Thumbnails bucket = ${process.env.BUCKET_THUMBNAILS}`);
 });

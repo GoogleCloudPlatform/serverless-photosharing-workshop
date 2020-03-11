@@ -13,3 +13,6 @@
 # limitations under the License.
 
 runtime: nodejs10
+env_variables:
+  BUCKET_PICTURES: uploaded-pictures-${GOOGLE_CLOUD_PROJECT}
+  BUCKET_THUMBNAILS: thumbnails-${GOOGLE_CLOUD_PROJECT}
