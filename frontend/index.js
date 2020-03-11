@@ -28,7 +28,8 @@ app.use(express.static('public'));
 app.use(fileUpload({
     liimits: { fileSize: 10 * 1024 * 1024 },
     useTempFiles : true,
-    tempFileDir : '/tmp/'
+    tempFileDir : '/tmp/',
+    resumable: false
 }))
 
 app.post('/api/pictures', async (req, res) => {
@@ -43,7 +44,7 @@ app.post('/api/pictures', async (req, res) => {
     await mv(newPicture);
     console.log('File moved in temporary directory');
 
-    const pictureBucket = storage.bucket('uploaded-pictures');
+    const pictureBucket = storage.bucket(process.env.BUCKET_PICTURES);
     await pictureBucket.upload(newPicture);
     console.log("Uploaded new picture into Cloud Storage");
 
