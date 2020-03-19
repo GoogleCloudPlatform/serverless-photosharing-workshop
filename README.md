@@ -24,7 +24,7 @@ At the end of the labs, this will be the final architecture:
 
 ## Solutions used
 
-The app uses the following solutions.
+The app uses the following solutions:
 
 Compute:
 
