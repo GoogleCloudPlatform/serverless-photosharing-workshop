@@ -32,7 +32,7 @@ app.post('/', async (req, res) => {
         console.log(`Received thumbnail request for file ${fileEvent.name} from bucket ${fileEvent.bucket}`);
 
         const bucket = storage.bucket(fileEvent.bucket);
-        const thumbBucket = storage.bucket('thumbnail-pictures');
+        const thumbBucket = storage.bucket(process.env.BUCKET_THUMBNAILS);
 
         const originalFile = path.resolve('/tmp/original', fileEvent.name);
         const thumbFile = path.resolve('/tmp/thumbnail', fileEvent.name);
@@ -52,7 +52,7 @@ app.post('/', async (req, res) => {
         console.log(`Created local thumbnail in ${thumbFile}`);
 
         await thumbBucket.upload(thumbFile);
-        console.log("Uploaded thumbnail to Cloud Storage");
+        console.log(`Uploaded thumbnail to Cloud Storage bucket ${process.env.BUCKET_THUMBNAILS}`);
 
         res.status(204).send(`${fileEvent.name} processed`);
     } catch (err) {

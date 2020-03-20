@@ -38,7 +38,7 @@ app.post('/', async (req, res) => {
             });
             console.log(`Picture file names: ${JSON.stringify(thumbnailFiles)}`);
 
-            const thumbBucket = storage.bucket('thumbnail-pictures');
+            const thumbBucket = storage.bucket(process.env.BUCKET_THUMBNAILS);
 
             await Promise.all(thumbnailFiles.map(async fileName => {
                 const filePath = path.resolve('/tmp', fileName);
@@ -61,7 +61,7 @@ app.post('/', async (req, res) => {
             console.log("Created local collage picture");
 
             await thumbBucket.upload(collagePath);
-            console.log("Uploaded collage to Cloud Storage");
+            console.log(`Uploaded collage to Cloud Storage bucket ${process.env.BUCKET_THUMBNAILS}`);
 
             res.status(204).send("Collage created.");
         }

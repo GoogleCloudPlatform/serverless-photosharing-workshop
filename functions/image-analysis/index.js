@@ -53,14 +53,14 @@ exports.vision_analysis = async (event, context) => {
 
         // determining if the picture is safe to show
         const safeSearch = response.safeSearchAnnotation;
-        const isSafe = ["adult", "spoof", "medical", "violence", "racy"].every(k => 
+        const isSafe = ["adult", "spoof", "medical", "violence", "racy"].every(k =>
             !['LIKELY', 'VERY_LIKELY'].includes(safeSearch[k]));
         console.log(`Safe? ${isSafe}`);
 
         // if the picture is safe to display, store it in Firestore
         if (isSafe) {
             const pictureStore = new Firestore().collection('pictures');
-            
+
             const doc = pictureStore.doc(filename);
             await doc.set({
                 labels: labels,
@@ -76,7 +76,7 @@ exports.vision_analysis = async (event, context) => {
 };
 
 function decColorToHex(r, g, b) {
-    return '#' + Number(r).toString(16).padStart(2, '0') + 
-                 Number(g).toString(16).padStart(2, '0') + 
+    return '#' + Number(r).toString(16).padStart(2, '0') +
+                 Number(g).toString(16).padStart(2, '0') +
                  Number(b).toString(16).padStart(2, '0');
 }
