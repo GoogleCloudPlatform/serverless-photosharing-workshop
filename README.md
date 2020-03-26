@@ -10,16 +10,22 @@ App Engine, and Cloud Run.
 
 There is a workshop you can follow to build the app:
 
-* [Lab 1 — Store and analyse pictures]()
-* [Lab 2 — Create thumbnails of big pictures]()
-* [Lab 3 — Run containers on a schedule]()
-* [Lab 4 — Create a web frontend]()
+* [Lab 1 — Store and analyse pictures](https://codelabs.developers.google.com/codelabs/cloud-picadaily-lab1)
+* [Lab 2 — Create thumbnails of big pictures](https://codelabs.developers.google.com/codelabs/cloud-picadaily-lab2)
+* [Lab 3 — Run containers on a schedule](https://codelabs.developers.google.com/codelabs/cloud-picadaily-lab3)
+* [Lab 4 — Create a web frontend](https://codelabs.developers.google.com/codelabs/cloud-picadaily-lab4)
+
+## Presentation
+
+There's a [presentation](https://speakerdeck.com/meteatamel/pic-a-daily-serverless-workshop) that accompanies the workshop.
+
+[![Pic-a-Daily Serverless Workshop](./pic-a-daily-presentation.png)](https://speakerdeck.com/meteatamel/pic-a-daily-serverless-workshop)
 
 ## Architecture
 
 At the end of the labs, this will be the final architecture:
 
-![Pic-a-daily Architecture](./pic-a-daily.png)
+![Pic-a-daily Architecture](./pic-a-daily-architecture.png)
 
 
 ## Solutions used
