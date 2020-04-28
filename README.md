@@ -38,7 +38,7 @@ Compute:
 * [App Engine](https://cloud.google.com/appengine/) — application as a service
 * [Cloud Run](https://cloud.google.com/run/) — container as a service
 
-Date:
+Data:
 
 * [Cloud Storage](https://cloud.google.com/storage/) — for storing file blobs (images)
 * [Cloud Firestore](https://cloud.google.com/firestore/) — for structured data
