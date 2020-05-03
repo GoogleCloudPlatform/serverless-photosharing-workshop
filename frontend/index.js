@@ -26,7 +26,7 @@ dayjs.extend(relativeTime)
 const app = express();
 app.use(express.static('public'));
 app.use(fileUpload({
-    liimits: { fileSize: 10 * 1024 * 1024 },
+    limits: { fileSize: 10 * 1024 * 1024 },
     useTempFiles : true,
     tempFileDir : '/tmp/'
 }))
