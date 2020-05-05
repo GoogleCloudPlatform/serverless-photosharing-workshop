@@ -48,7 +48,8 @@ Services:
 * [Vision API](https://cloud.google.com/vision/) — to analyze pictures
 * [Cloud Logging](https://cloud.google.com/logging/) — to track interesting events
 * [Cloud Scheduler](https://cloud.google.com/scheduler/) — to run workloads on a schedule
-* [Cloud Pub/Sub](https://cloud.google.com/pubsub) - for publish/subscribe-type messaging
+* [Cloud Pub/Sub](https://cloud.google.com/pubsub) — for publish/subscribe-type messaging
+* [Cloud Shell](https://cloud.google.com/shell) — for developing online, in the cloud
 
 -------
 
