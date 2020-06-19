@@ -1,11 +1,12 @@
 #!/bin/bash
 
-set -v
 set -e
+set -v
 
 # Enable APIs
 gcloud services enable vision.googleapis.com
 gcloud services enable cloudfunctions.googleapis.com
+gcloud services enable appengine.googleapis.com
 gcloud services enable firestore.googleapis.com
 
 # Create a public EU multi-region bucket with uniform access
