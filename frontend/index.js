@@ -75,15 +75,15 @@ app.get('/api/pictures', async (req, res) => {
 });
 
 app.get('/api/pictures/:name', async (req, res) => {
-    res.redirect(`https://storage.cloud.google.com/${process.env.BUCKET_PICTURES}/${req.params.name}`);
+    res.redirect(`https://storage.googleapis.com/${process.env.BUCKET_PICTURES}/${req.params.name}`);
 });
 
 app.get('/api/thumbnails/:name', async (req, res) => {
-    res.redirect(`https://storage.cloud.google.com/${process.env.BUCKET_THUMBNAILS}/${req.params.name}`);
+    res.redirect(`https://storage.googleapis.com/${process.env.BUCKET_THUMBNAILS}/${req.params.name}`);
 });
 
 app.get('/api/collage', async (req, res) => {
-    res.redirect(`https://storage.cloud.google.com/${process.env.BUCKET_THUMBNAILS}/collage.png`);
+    res.redirect(`https://storage.googleapis.com/${process.env.BUCKET_THUMBNAILS}/collage.png`);
 });
 
 const PORT = process.env.PORT || 8080;
