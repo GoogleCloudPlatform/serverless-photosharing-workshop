@@ -1,6 +1,5 @@
 #!/bin/bash
 
-set -e
 set -v
 
 # Enable APIs
