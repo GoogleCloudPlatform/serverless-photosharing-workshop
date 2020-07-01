@@ -27,7 +27,10 @@ app.post('/', async (req, res) => {
 
         const thumbnailFiles = [];
         const pictureStore = new Firestore().collection('pictures');
-        const snapshot = await pictureStore.orderBy('created', 'desc').limit(4).get();
+        const snapshot = await pictureStore
+            .where('thumbnail', '==', true)
+            .orderBy('created', 'desc')
+            .limit(4).get();
 
         if (snapshot.empty) {
             console.log('Empty collection, no collage to make');

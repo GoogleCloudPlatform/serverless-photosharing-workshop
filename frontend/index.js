@@ -55,7 +55,9 @@ app.get('/api/pictures', async (req, res) => {
 
     const thumbnails = [];
     const pictureStore = new Firestore().collection('pictures');
-    const snapshot = await pictureStore.orderBy('created', 'desc').get();
+    const snapshot = await pictureStore
+        .where('thumbnail', '==', true)
+        .orderBy('created', 'desc').get();
 
     if (snapshot.empty) {
         console.log('No pictures found');

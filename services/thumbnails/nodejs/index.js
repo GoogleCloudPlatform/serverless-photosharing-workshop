@@ -18,6 +18,7 @@ const Promise = require("bluebird");
 const path = require('path');
 const {Storage} = require('@google-cloud/storage');
 const storage = new Storage();
+const Firestore = require('@google-cloud/firestore');
 
 const app = express();
 app.use(bodyParser.json());
@@ -53,6 +54,13 @@ app.post('/', async (req, res) => {
 
         await thumbBucket.upload(thumbFile);
         console.log(`Uploaded thumbnail to Cloud Storage bucket ${process.env.BUCKET_THUMBNAILS}`);
+
+        const pictureStore = new Firestore().collection('pictures');
+        const doc = pictureStore.doc(fileEvent.name);
+            await doc.set({
+                thumbnail: true
+            }, {merge: true});
+        console.log(`Updated Firestore about thumbnail creation for ${fileEvent.name}`);
 
         res.status(204).send(`${fileEvent.name} processed`);
     } catch (err) {

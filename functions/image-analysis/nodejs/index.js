@@ -66,7 +66,7 @@ exports.vision_analysis = async (event, context) => {
                 labels: labels,
                 color: colorHex,
                 created: Firestore.Timestamp.now()
-            });
+            }, {merge: true});
 
             console.log("Stored metadata in Firestore");
         }
