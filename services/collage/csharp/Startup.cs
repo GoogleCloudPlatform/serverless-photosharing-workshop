@@ -83,7 +83,7 @@ namespace QueryRunner
 
         private async Task<List<string>> GetPictureNames(string projectId)
         {
-            var firestore = FirestoreDb.Create(projectId);
+            var firestore = await FirestoreDb.CreateAsync(projectId);
             var pictureStore = firestore.Collection("pictures");
 
             var query = pictureStore

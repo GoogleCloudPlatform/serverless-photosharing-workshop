@@ -26,6 +26,7 @@ gcloud alpha firestore indexes composite create --collection-group=pictures \
 export SERVICE_NAME=picture-uploaded
 export REGION=europe-west1
 
+# Node.js
 gcloud functions deploy ${SERVICE_NAME} \
   --region=${REGION} \
   --source=../functions/image-analysis/nodejs \
@@ -34,3 +35,14 @@ gcloud functions deploy ${SERVICE_NAME} \
   --trigger-resource=${BUCKET_NAME} \
   --trigger-event=google.storage.object.finalize \
   --allow-unauthenticated
+
+# C#
+# gcloud functions deploy ${SERVICE_NAME} \
+#   --region=${REGION} \
+#   --source=../functions/image-analysis/csharp \
+#   --runtime dotnet3 \
+#   --entry-point=ImageAnalysis.Function \
+#   --trigger-resource=${BUCKET_NAME} \
+#   --trigger-event=google.storage.object.finalize \
+#   --allow-unauthenticated \
+#   --set-env-vars PROJECT_ID=${GOOGLE_CLOUD_PROJECT}
