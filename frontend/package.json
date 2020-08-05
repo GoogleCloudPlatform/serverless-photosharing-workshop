@@ -11,6 +11,6 @@
     "express": "^4.16.4",
     "dayjs": "^1.8.22",
     "bluebird": "^3.5.0",
-    "express-fileupload": "^1.1.6"
+    "express-fileupload": "^1.1.9"
   }
 }
