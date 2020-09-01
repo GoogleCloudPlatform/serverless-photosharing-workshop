@@ -7,6 +7,7 @@ gcloud services enable vision.googleapis.com
 gcloud services enable cloudfunctions.googleapis.com
 gcloud services enable appengine.googleapis.com
 gcloud services enable firestore.googleapis.com
+gcloud services enable cloudbuild.googleapis.com
 
 # Create a public EU multi-region bucket with uniform access
 export BUCKET_NAME=uploaded-pictures-${GOOGLE_CLOUD_PROJECT}
