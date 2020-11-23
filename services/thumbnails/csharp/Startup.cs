@@ -59,8 +59,16 @@ namespace QueryRunner
                         logger.LogInformation("PubSub message: " + pubSubMessage);
                     }
 
+                    var eventType = (string)pubSubMessage["message"]["attributes"]["eventType"];
                     var data = (string)pubSubMessage["message"]["data"];
                     var fileEvent = JValue.Parse(Encoding.UTF8.GetString(Convert.FromBase64String(data)));
+
+                    if (eventType != "OBJECT_FINALIZE")
+                    {
+                        logger.LogInformation($"Event type {eventType} is not OBJECT_FINALIZE. Skipping file.");
+                        return;
+                    }
+
                     logger.LogInformation("Base 64 decoded file event: " + fileEvent);
 
                     var bucket = (string)fileEvent["bucket"];

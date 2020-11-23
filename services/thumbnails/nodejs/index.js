@@ -28,7 +28,16 @@ app.post('/', async (req, res) => {
         const pubSubMessage = req.body;
         console.log(`PubSub message: ${JSON.stringify(pubSubMessage)}`);
 
+        const eventType = pubSubMessage.message.attributes.eventType;
         const fileEvent = JSON.parse(Buffer.from(pubSubMessage.message.data, 'base64').toString().trim());
+
+        if (eventType != 'OBJECT_FINALIZE')
+        {
+            console.log(`Event type ${eventType} is not OBJECT_FINALIZE. Skipping file: ${fileEvent.name}`);
+            res.status(204).send(`File ${fileEvent.name} skipped`);
+            return;
+        }
+
         console.log(`Base 64 decoded file event: ${JSON.stringify(fileEvent)}`);
         console.log(`Received thumbnail request for file ${fileEvent.name} from bucket ${fileEvent.bucket}`);
 
