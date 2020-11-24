@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Google.Cloud.Firestore;
 using Google.Cloud.Storage.V1;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -47,6 +49,7 @@ namespace QueryRunner
             app.UseRouting();
 
             var thumbBucket = GetEnvironmentVariable("BUCKET_THUMBNAILS");
+            var projectId = GetEnvironmentVariable("PROJECT_ID");
 
             app.UseEndpoints(endpoints =>
             {
@@ -95,6 +98,17 @@ namespace QueryRunner
 
                             await client.UploadObjectAsync(thumbBucket, name, "image/png", outputStream);
                             logger.LogInformation($"Uploaded '{name}' to bucket '{thumbBucket}'");
+
+                            var firestore = await FirestoreDb.CreateAsync(projectId);
+                            var pictureStore = firestore.Collection("pictures");
+                            var doc = pictureStore.Document(name);
+                            var metadata = new Dictionary<string, object>()
+                            {
+                                {"thumbnail", true},
+                            };
+                            await doc.SetAsync(metadata, SetOptions.MergeAll);
+
+                            logger.LogInformation($"Updated Firestore about thumbnail creation for {name}");
                         }
                     }
 

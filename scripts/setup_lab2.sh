@@ -17,21 +17,35 @@ gsutil iam ch allUsers:objectViewer gs://${BUCKET_NAME}
 
 # Build the container
 export SERVICE_NAME=${SERVICE_SRC}-service
+
+## Node.js
 gcloud builds submit \
   ../services/${SERVICE_SRC}/nodejs \
   --tag gcr.io/${GOOGLE_CLOUD_PROJECT}/${SERVICE_NAME}
 
-# Set region and managed
+## C#
+# gcloud builds submit \
+#   ../services/${SERVICE_SRC}/csharp \
+#   --tag gcr.io/${GOOGLE_CLOUD_PROJECT}/${SERVICE_NAME}
+
+# Deploy to Cloud Run
 export REGION=europe-west1
 gcloud config set run/region ${REGION}
 gcloud config set run/platform managed
 
-# Deploy to Cloud Run
+## Node.js
 gcloud run deploy ${SERVICE_NAME} \
     --image gcr.io/${GOOGLE_CLOUD_PROJECT}/${SERVICE_NAME} \
     --no-allow-unauthenticated \
     --memory=1Gi \
     --update-env-vars BUCKET_THUMBNAILS=${BUCKET_NAME}
+
+## C#
+# gcloud run deploy ${SERVICE_NAME} \
+#     --image gcr.io/${GOOGLE_CLOUD_PROJECT}/${SERVICE_NAME} \
+#     --no-allow-unauthenticated \
+#     --memory=1Gi \
+#     --update-env-vars BUCKET_THUMBNAILS=${BUCKET_NAME},PROJECT_ID=${GOOGLE_CLOUD_PROJECT}
 
 # Setup Pub/Sub notification to Cloud Run
 
