@@ -13,7 +13,6 @@
 // limitations under the License.
 using CloudNative.CloudEvents;
 using Google.Cloud.Functions.Framework;
-using Google.Cloud.Functions.Framework.GcfEvents;
 using Google.Cloud.Vision.V1;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
@@ -22,6 +21,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using static Google.Cloud.Vision.V1.Feature.Types.Type;
 using Google.Cloud.Firestore;
+using Google.Events.Protobuf.Cloud.Storage.V1;
 
 namespace ImageAnalysis
 {
@@ -30,7 +30,7 @@ namespace ImageAnalysis
     /// use the Google Cloud Vision API to determine if it's a safe image.
     //  If so, extract labels and dominant colors to save to Firestore.
     /// </summary>
-    public class Function : ICloudEventFunction<StorageObject>
+    public class Function : ICloudEventFunction<StorageObjectData>
     {
         private readonly FirestoreDb _firestoreDb;
 
@@ -49,7 +49,7 @@ namespace ImageAnalysis
         /// </summary>
         /// <param name="payload">The storage object that's been uploaded.</param>
         /// <param name="context">Event context (event ID etc)</param>
-        public async Task HandleAsync(CloudEvent cloudEvent, StorageObject data, CancellationToken cancellationToken)
+        public async Task HandleAsync(CloudEvent cloudEvent, StorageObjectData data, CancellationToken cancellationToken)
         {
             _logger.LogInformation($"New picture uploaded {data.Name} in {data.Bucket}");
 
@@ -60,7 +60,7 @@ namespace ImageAnalysis
         /// <summary>
         /// Use the Vision API to annotate the image.
         /// </summary>
-        private Task<AnnotateImageResponse> AnnotateImageAsync(StorageObject data, CancellationToken cancellationToken)
+        private Task<AnnotateImageResponse> AnnotateImageAsync(StorageObjectData data, CancellationToken cancellationToken)
         {
             var features = new[] { LabelDetection, Feature.Types.Type.ImageProperties, SafeSearchDetection}
                 .Select(type => new Feature { Type = type, MaxResults = 20 });

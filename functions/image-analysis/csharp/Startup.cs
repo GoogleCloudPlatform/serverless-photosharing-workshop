@@ -11,12 +11,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-using Google.Cloud.Functions.Invoker.DependencyInjection;
 using Google.Cloud.Firestore;
 using Google.Cloud.Vision.V1;
 using ImageAnalysis;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using Google.Cloud.Functions.Hosting;
+using Microsoft.AspNetCore.Hosting;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 
@@ -29,11 +30,12 @@ namespace ImageAnalysis
     /// </summary>
     public class Startup : FunctionsStartup
     {
-        public override void Configure(IFunctionsHostBuilder builder)
+        //public override void Configure(IFunctionsHostBuilder builder)
+        public override void ConfigureServices(WebHostBuilderContext context, IServiceCollection services)
         {
-            builder.Services.AddSingleton(ImageAnnotatorClient.Create());
+            services.AddSingleton(ImageAnnotatorClient.Create());
             var projectId = GetEnvironmentVariable("PROJECT_ID");
-            builder.Services.AddSingleton(FirestoreDb.Create(projectId));
+            services.AddSingleton(FirestoreDb.Create(projectId));
         }
 
         private string GetEnvironmentVariable(string var)
