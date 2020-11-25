@@ -8,6 +8,8 @@ export SERVICE_SRC=garbage-collector
 # Enable APIs
 gcloud services enable eventarc.googleapis.com
 
+# Don't forget to enable Audit Logs for Cloud Storage as well!
+
 # Build the container
 export SERVICE_NAME=${SERVICE_SRC}-service
 
