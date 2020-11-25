@@ -14,6 +14,7 @@ There is a workshop you can follow to build the app:
 * [Lab 2 — Create thumbnails of big pictures](https://codelabs.developers.google.com/codelabs/cloud-picadaily-lab2)
 * [Lab 3 — Run containers on a schedule](https://codelabs.developers.google.com/codelabs/cloud-picadaily-lab3)
 * [Lab 4 — Create a web frontend](https://codelabs.developers.google.com/codelabs/cloud-picadaily-lab4)
+* [Lab 5 — Image garbage collector](https://codelabs.developers.google.com/codelabs/cloud-picadaily-lab5)
 
 ## Presentation
 
@@ -45,6 +46,7 @@ Data:
 
 Services:
 
+* [Eventarc](https://cloud.google.com/run/docs/quickstarts/events) - to receive events from various Google Cloud sources.
 * [Vision API](https://cloud.google.com/vision/) — to analyze pictures
 * [Cloud Logging](https://cloud.google.com/logging/) — to track interesting events
 * [Cloud Scheduler](https://cloud.google.com/scheduler/) — to run workloads on a schedule
