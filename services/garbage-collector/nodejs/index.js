@@ -54,21 +54,26 @@ app.post('/', async (req, res) => {
             return;
         }
 
-        async function deleteFromThumbnails() {
+        // Delete from thumbnails
+        try {
             await storage.bucket(bucketThumbnails).file(objectName).delete();
-
             console.log(`Deleted '${objectName}' from bucket '${bucketThumbnails}'.`);
         }
-        deleteFromThumbnails().catch(err => console.log(`Failed to delete '${objectName}' from bucket '${bucketThumbnails}': ${err}.`));
+        catch(err) {
+            console.log(`Failed to delete '${objectName}' from bucket '${bucketThumbnails}': ${err}.`);
+        }
 
-        async function deleteFromFirestore() {
+        // Delete from Firestore
+        try {
             const pictureStore = new Firestore().collection('pictures');
             const docRef = pictureStore.doc(objectName);
             await docRef.delete();
 
             console.log(`Deleted '${objectName}' from Firestore collection 'pictures'`);
         }
-        deleteFromFirestore().catch(err => console.log(`Failed to delete '${objectName}' from Firestore: ${err}.`));
+        catch(err) {
+            console.log(`Failed to delete '${objectName}' from Firestore: ${err}.`);
+        }
 
         res.status(200).send(`Processed '${objectName}'.`);
     } catch (err) {
