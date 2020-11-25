@@ -12,14 +12,14 @@ gcloud services enable eventarc.googleapis.com
 export SERVICE_NAME=${SERVICE_SRC}-service
 
 ## Node.js
-# gcloud builds submit \
-#   ../services/${SERVICE_SRC}/nodejs \
-#   --tag gcr.io/${GOOGLE_CLOUD_PROJECT}/${SERVICE_NAME}
+gcloud builds submit \
+  ../services/${SERVICE_SRC}/nodejs \
+  --tag gcr.io/${GOOGLE_CLOUD_PROJECT}/${SERVICE_NAME}
 
 ## C#
-gcloud builds submit \
-  ../services/${SERVICE_SRC}/csharp \
-  --tag gcr.io/${GOOGLE_CLOUD_PROJECT}/${SERVICE_NAME}
+# gcloud builds submit \
+#   ../services/${SERVICE_SRC}/csharp \
+#   --tag gcr.io/${GOOGLE_CLOUD_PROJECT}/${SERVICE_NAME}
 
 # Deploy to Cloud Run
 export REGION=europe-west1
@@ -28,11 +28,17 @@ gcloud config set run/platform managed
 export BUCKET_IMAGES=uploaded-pictures-${GOOGLE_CLOUD_PROJECT}
 export BUCKET_THUMBNAILS=thumbnails-${GOOGLE_CLOUD_PROJECT}
 
-## C#
+## Node.js
 gcloud run deploy ${SERVICE_NAME} \
     --image gcr.io/${GOOGLE_CLOUD_PROJECT}/${SERVICE_NAME} \
     --allow-unauthenticated \
-    --update-env-vars BUCKET_IMAGES=${BUCKET_IMAGES},BUCKET_THUMBNAILS=${BUCKET_THUMBNAILS},PROJECT_ID=${GOOGLE_CLOUD_PROJECT}
+    --update-env-vars BUCKET_IMAGES=${BUCKET_IMAGES},BUCKET_THUMBNAILS=${BUCKET_THUMBNAILS}
+
+## C#
+# gcloud run deploy ${SERVICE_NAME} \
+#     --image gcr.io/${GOOGLE_CLOUD_PROJECT}/${SERVICE_NAME} \
+#     --allow-unauthenticated \
+#     --update-env-vars BUCKET_IMAGES=${BUCKET_IMAGES},BUCKET_THUMBNAILS=${BUCKET_THUMBNAILS},PROJECT_ID=${GOOGLE_CLOUD_PROJECT}
 
 # Set up Eventarc
 
