@@ -47,3 +47,13 @@ gcloud functions deploy ${SERVICE_NAME} \
 #   --trigger-event=google.storage.object.finalize \
 #   --allow-unauthenticated \
 #   --set-env-vars PROJECT_ID=${GOOGLE_CLOUD_PROJECT}
+
+## Java
+# gcloud functions deploy ${SERVICE_NAME} \
+#  --region=${REGION} \
+#  --source=../functions/image-analysis/java \
+#  --runtime java11 \
+#  --entry-point=fn.ImageAnalysis \
+#  --trigger-resource=${BUCKET_NAME} \
+#  --trigger-event=google.storage.object.finalize \
+#  --allow-unauthenticated
