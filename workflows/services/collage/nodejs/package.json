@@ -6,10 +6,10 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "@google-cloud/storage": "^4.0.0",
     "@google-cloud/firestore": "^3.4.1",
-    "express": "^4.16.4",
+    "@google-cloud/storage": "^4.0.0",
     "bluebird": "^3.5.0",
+    "express": "^4.16.4",
     "imagemagick": "^0.1.3"
   }
 }

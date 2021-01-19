@@ -31,14 +31,14 @@ gcloud run deploy ${SERVICE_NAME} \
     --update-env-vars BUCKET_THUMBNAILS=${BUCKET_NAME}
 
 # Test Local
-# curl -v -X POST \
+# curl -v -X GET \
 # -H "Authorization: Bearer "$(gcloud auth application-default print-access-token) \
 # -H "Content-Type: application/json; charset=utf-8" \
 # http://localhost:8080
 
 # Test Cloud Run service
 # export SERVICE_URL="$(gcloud run services list --platform managed --filter=${SERVICE_NAME} --format='value(URL)')"
-# curl -v -X POST \
+# curl -v -X GET \
 # -H "Authorization: Bearer "$(gcloud auth application-default print-access-token) \
 # -H "Content-Type: application/json; charset=utf-8" \
 # ${SERVICE_URL}

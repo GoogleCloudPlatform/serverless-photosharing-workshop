@@ -1,0 +1,23 @@
+main:
+  params: [args]
+  steps:
+    - thumbnailCall:
+        call: http.post
+        args:
+          url: ${args.thumbnailUri}
+          auth:
+            type: OIDC
+          body:
+              gcsImageUri: ${args.gcsImageUri}
+        result: thumbnailResponse
+    - collageCall:
+        call: http.get
+        args:
+          url: ${args.collageUri}
+          auth:
+            type: OIDC
+        result: collageResponse
+    - returnResult:
+        return:
+          thumbnailCode: ${thumbnailResponse.code}
+          collageCode: ${collageResponse.code}
