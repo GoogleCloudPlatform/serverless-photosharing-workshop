@@ -1,0 +1,15 @@
+main:
+  params: [args]
+  steps:
+    - thumbnailsCall:
+        call: http.post
+        args:
+          url: ${args.thumbnailsUri}
+          auth:
+            type: OIDC
+          body:
+              gcsImageUri: ${args.gcsImageUri}
+        result: thumbnailsResponse
+    - returnResult:
+        return:
+          code: ${thumbnailsResponse.code}
