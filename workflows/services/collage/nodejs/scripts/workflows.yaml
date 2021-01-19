@@ -1,0 +1,13 @@
+main:
+  params: [args]
+  steps:
+    - serviceCall:
+        call: http.get
+        args:
+          url: ${args.serviceUri}
+          auth:
+            type: OIDC
+        result: serviceResponse
+    - returnResult:
+        return:
+          code: ${serviceResponse.code}

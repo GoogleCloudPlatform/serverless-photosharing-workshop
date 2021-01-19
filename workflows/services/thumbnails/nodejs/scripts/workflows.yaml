@@ -1,15 +1,15 @@
 main:
   params: [args]
   steps:
-    - thumbnailsCall:
+    - serviceCall:
         call: http.post
         args:
-          url: ${args.thumbnailsUri}
+          url: ${args.serviceUri}
           auth:
             type: OIDC
           body:
               gcsImageUri: ${args.gcsImageUri}
-        result: thumbnailsResponse
+        result: serviceResponse
     - returnResult:
         return:
-          code: ${thumbnailsResponse.code}
+          code: ${serviceResponse.code}

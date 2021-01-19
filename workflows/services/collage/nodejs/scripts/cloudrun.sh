@@ -3,18 +3,12 @@
 set -v
 
 # Source folder name for the lab
-export SERVICE_SRC=thumbnails
+export SERVICE_SRC=collage
 export GOOGLE_CLOUD_PROJECT=$(gcloud config get-value project)
 
 # Enable APIs
 gcloud services enable cloudbuild.googleapis.com
 gcloud services enable run.googleapis.com
-
-# Create a public EU multi-region bucket with uniform access
-export BUCKET_NAME=${SERVICE_SRC}-${GOOGLE_CLOUD_PROJECT}
-gsutil mb -l EU gs://${BUCKET_NAME}
-gsutil uniformbucketlevelaccess set on gs://${BUCKET_NAME}
-gsutil iam ch allUsers:objectViewer gs://${BUCKET_NAME}
 
 # Build the container
 export SERVICE_NAME=${SERVICE_SRC}-service
@@ -40,7 +34,6 @@ gcloud run deploy ${SERVICE_NAME} \
 # curl -v -X POST \
 # -H "Authorization: Bearer "$(gcloud auth application-default print-access-token) \
 # -H "Content-Type: application/json; charset=utf-8" \
-# -d @request.json \
 # http://localhost:8080
 
 # Test Cloud Run service
@@ -48,5 +41,4 @@ gcloud run deploy ${SERVICE_NAME} \
 # curl -v -X POST \
 # -H "Authorization: Bearer "$(gcloud auth application-default print-access-token) \
 # -H "Content-Type: application/json; charset=utf-8" \
-# -d @request.json \
 # ${SERVICE_URL}
