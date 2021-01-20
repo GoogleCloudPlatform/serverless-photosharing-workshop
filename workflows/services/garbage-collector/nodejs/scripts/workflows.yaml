@@ -1,0 +1,15 @@
+main:
+  params: [args]
+  steps:
+    - serviceCall:
+        call: http.post
+        args:
+          url: ${args.serviceUri}
+          auth:
+            type: OIDC
+          body:
+              gcsImageUri: ${args.gcsImageUri}
+        result: serviceResponse
+    - returnResult:
+        return:
+          code: ${serviceResponse.code}

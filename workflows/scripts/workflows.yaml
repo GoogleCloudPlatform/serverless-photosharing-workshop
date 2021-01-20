@@ -17,7 +17,17 @@ main:
           auth:
             type: OIDC
         result: collageResponse
+    - garbageCollectorCall:
+        call: http.post
+        args:
+          url: ${args.garbageCollectorUri}
+          auth:
+            type: OIDC
+          body:
+              gcsImageUri: ${args.gcsImageUri}
+        result: garbageCollectorResponse
     - returnResult:
         return:
           thumbnailCode: ${thumbnailResponse.code}
           collageCode: ${collageResponse.code}
+          garbageCollectorCode: ${garbageCollectorResponse.code}
