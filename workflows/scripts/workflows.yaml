@@ -1,12 +1,14 @@
 main:
   params: [args]
   steps:
-    - conditionalSwitch:
+    - eventTypeSwitch:
         switch:
             - condition: ${args.eventType == "OBJECT_FINALIZE"}
               next: thumbnailCall
             - condition: ${args.eventType == "OBJECT_DELETE"}
               next: garbageCollectorCall
+    - eventTypeNotSupported:
+        raise: ${"eventType " + args.eventType + " is not supported"}
         next: end
     - thumbnailCall:
         call: http.post
@@ -24,7 +26,7 @@ main:
           auth:
             type: OIDC
         result: collageResponse
-    - returnFinalize:
+    - finalizeCompleted:
         return:
           thumbnailCode: ${thumbnailResponse.code}
           collageCode: ${collageResponse.code}
@@ -37,6 +39,6 @@ main:
           body:
               gcsImageUri: ${args.gcsImageUri}
         result: garbageCollectorResponse
-    - returnDelete:
+    - deleteCompleted:
         return:
           garbageCollectorCode: ${garbageCollectorResponse.code}
