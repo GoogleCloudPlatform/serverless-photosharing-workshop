@@ -1,15 +1,70 @@
 main:
   params: [args]
   steps:
+    - init:
+        assign:
+          - file: ${args.file}
+          - bucket: ${args.bucket}
+          - gsUri: ${"gs://" + bucket + "/" + file}
+          - projectId: ${sys.get_env("GOOGLE_CLOUD_PROJECT_ID")}
     - eventTypeSwitch:
         switch:
             - condition: ${args.eventType == "OBJECT_FINALIZE"}
-              next: thumbnailCall
+              next: imageAnalysisCall
             - condition: ${args.eventType == "OBJECT_DELETE"}
               next: garbageCollectorCall
     - eventTypeNotSupported:
         raise: ${"eventType " + args.eventType + " is not supported"}
         next: end
+    - imageAnalysisCall:
+        call: http.post
+        args:
+          url: https://vision.googleapis.com/v1/images:annotate
+          headers:
+            Content-Type: application/json
+          auth:
+            type: OAuth2
+          body:
+            requests:
+            - image:
+                source:
+                  gcsImageUri: ${gsUri}
+              features:
+              - type: LABEL_DETECTION
+              - type: SAFE_SEARCH_DETECTION
+              - type: IMAGE_PROPERTIES
+        result: imageAnalysisResponse
+    - transformImageAnalysisData:
+        call: http.post
+        args:
+          url: ${args.transformDataUri}
+          auth:
+            type: OIDC
+          body: ${imageAnalysisResponse.body}
+        result: imageMetadata
+    - checkSafety:
+        switch:
+          - condition: ${imageMetadata.body.safe == true}
+            next: storeMetadata
+        next: end
+    - storeMetadata:
+        call: http.request
+        args:
+          url: ${"https://firestore.googleapis.com/v1/projects/" + projectId + "/databases/(default)/documents/pictures/" + file + "?updateMask.fieldPaths=color&updateMask.fieldPaths=labels&updateMask.fieldPaths=created"}
+          auth:
+            type: OAuth2
+          method: PATCH
+          body:
+            name: ${"projects/" + projectId + "/databases/(default)/documents/pictures/" + file}
+            fields:
+              color:
+                stringValue: ${imageMetadata.body.color}
+              created:
+                timestampValue: ${imageMetadata.body.created}
+              labels:
+                arrayValue:
+                  values: ${imageMetadata.body.labels}
+        result: storeMetadataResponse
     - thumbnailCall:
         call: http.post
         args:
@@ -17,7 +72,7 @@ main:
           auth:
             type: OIDC
           body:
-              gcsImageUri: ${args.gcsImageUri}
+              gcsImageUri: ${gsUri}
         result: thumbnailResponse
     - collageCall:
         call: http.get
@@ -28,8 +83,10 @@ main:
         result: collageResponse
     - finalizeCompleted:
         return:
-          thumbnailCode: ${thumbnailResponse.code}
-          collageCode: ${collageResponse.code}
+          imageAnalysis: ${imageAnalysisResponse.code}
+          storeMetadata: ${storeMetadataResponse.code}
+          thumbnail: ${thumbnailResponse.code}
+          collage: ${collageResponse.code}
     - garbageCollectorCall:
         call: http.post
         args:
@@ -37,7 +94,7 @@ main:
           auth:
             type: OIDC
           body:
-              gcsImageUri: ${args.gcsImageUri}
+              gcsImageUri: ${gsUri}
         result: garbageCollectorResponse
     - deleteCompleted:
         return:
