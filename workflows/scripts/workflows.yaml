@@ -37,7 +37,7 @@ main:
     - transformImageAnalysisData:
         call: http.post
         args:
-          url: ${args.transformDataUri}
+          url: https://europe-west1-pic-a-daily-298110.cloudfunctions.net/vision-data-transform
           auth:
             type: OIDC
           body: ${imageAnalysisResponse.body}
@@ -68,7 +68,7 @@ main:
     - thumbnailCall:
         call: http.post
         args:
-          url: ${args.thumbnailUri}
+          url: https://thumbnails-service-rqvs6mtotq-ew.a.run.app
           auth:
             type: OIDC
           body:
@@ -77,7 +77,7 @@ main:
     - collageCall:
         call: http.get
         args:
-          url: ${args.collageUri}
+          url: https://collage-service-rqvs6mtotq-ew.a.run.app
           auth:
             type: OIDC
         result: collageResponse
