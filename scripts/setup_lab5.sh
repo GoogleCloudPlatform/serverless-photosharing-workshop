@@ -60,13 +60,13 @@ gcloud projects add-iam-policy-binding $(gcloud config get-value project) \
 gcloud config set eventarc/location ${REGION}
 
 # Create trigger
-gcloud beta eventarc triggers create trigger-${SERVICE_NAME} \
+gcloud eventarc triggers create trigger-${SERVICE_NAME} \
   --destination-run-service=${SERVICE_NAME} \
   --destination-run-region=${REGION} \
-  --matching-criteria="type=google.cloud.audit.log.v1.written" \
-  --matching-criteria="serviceName=storage.googleapis.com" \
-  --matching-criteria="methodName=storage.objects.delete" \
-  --service-account=${PROJECT_NUMBER}-compute@developer.gserviceaccount.com
+  --event-filters="type=google.cloud.audit.log.v1.written" \
+  --event-filters="serviceName=storage.googleapis.com" \
+  --event-filters="methodName=storage.objects.delete" \
+  --event-filters=${PROJECT_NUMBER}-compute@developer.gserviceaccount.com
 
 
 
