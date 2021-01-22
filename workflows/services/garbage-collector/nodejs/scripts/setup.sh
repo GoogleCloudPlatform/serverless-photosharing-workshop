@@ -29,3 +29,5 @@ gcloud run deploy ${SERVICE_NAME} \
     --image gcr.io/${GOOGLE_CLOUD_PROJECT}/${SERVICE_NAME} \
     --no-allow-unauthenticated \
     --update-env-vars BUCKET_THUMBNAILS=${BUCKET_THUMBNAILS}
+
+set +v

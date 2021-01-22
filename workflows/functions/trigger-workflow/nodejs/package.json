@@ -1,0 +1,9 @@
+{
+  "name": "trigger-workflow",
+  "description": "Execute the analysis / thumbnail / collage workflow",
+  "version": "0.0.1",
+  "dependencies": {
+    "@google-cloud/storage": "^1.6.0",
+    "@google-cloud/workflows": "^1.0.2"
+  }
+}

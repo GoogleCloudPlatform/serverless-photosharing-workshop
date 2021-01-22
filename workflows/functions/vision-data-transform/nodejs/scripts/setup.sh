@@ -19,3 +19,5 @@ gcloud functions deploy ${SERVICE_NAME} \
   --entry-point=vision_data_transform \
   --trigger-http \
   --allow-unauthenticated
+
+set +v

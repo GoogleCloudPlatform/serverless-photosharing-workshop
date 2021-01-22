@@ -68,7 +68,7 @@ main:
     - thumbnailCall:
         call: http.post
         args:
-          url: https://thumbnails-service-rqvs6mtotq-ew.a.run.app
+          url: https://thumbnails-service-l3she5prlq-ew.a.run.app
           auth:
             type: OIDC
           body:
@@ -77,7 +77,7 @@ main:
     - collageCall:
         call: http.get
         args:
-          url: https://collage-service-rqvs6mtotq-ew.a.run.app
+          url: https://collage-service-l3she5prlq-ew.a.run.app
           auth:
             type: OIDC
         result: collageResponse

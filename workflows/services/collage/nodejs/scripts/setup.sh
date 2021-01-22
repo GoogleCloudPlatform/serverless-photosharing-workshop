@@ -29,3 +29,5 @@ gcloud run deploy ${SERVICE_NAME} \
     --no-allow-unauthenticated \
     --memory=1Gi \
     --update-env-vars BUCKET_THUMBNAILS=${BUCKET_NAME}
+
+set +v
