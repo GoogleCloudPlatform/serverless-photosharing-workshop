@@ -19,19 +19,38 @@ const GOOGLE_CLOUD_PROJECT = process.env.GOOGLE_CLOUD_PROJECT;
 const WORKFLOW_REGION = process.env.WORKFLOW_REGION;
 const WORKFLOW_NAME = process.env.WORKFLOW_NAME;
 
+const THUMBNAILS_URL = process.env.THUMBNAILS_URL;
+const COLLAGE_URL = process.env.COLLAGE_URL;
+const GARBAGE_COLLECTOR_URL = process.env.GARBAGE_COLLECTOR_URL;
+const VISION_DATA_TRANSFORM_URL = process.env.VISION_DATA_TRANSFORM_URL;
+const urls = {THUMBNAILS_URL, COLLAGE_URL, GARBAGE_COLLECTOR_URL, VISION_DATA_TRANSFORM_URL};
+
 exports.trigger_workflow = async (event, context) => {
   console.log(`GCS event: ${JSON.stringify(event)}`);
+
+  console.log(`URLs: ${JSON.stringify(urls)}`);
 
   const file = event.name;
   const bucket = event.bucket;
 
-  console.log(`New picture received: ${file}, from bucket: ${bucket}`);
+  const eventType = context.eventType;
+  console.log(`Event type: ${eventType}`);
+
+  if (eventType == 'google.storage.object.finalize') {
+    console.log(`New picture received: ${file}, from bucket: ${bucket}`);
+  } else if (eventType == 'google.storage.object.delete') {
+    console.log(`Request to delete: ${file}, from bucket: ${bucket}`);
+  } else {
+    console.log(`Unrecognized event type: ${eventType}`);
+    return;
+  }
 
   try {
+    console.log(`workflow path: ${GOOGLE_CLOUD_PROJECT}, ${WORKFLOW_REGION}, ${WORKFLOW_NAME}`);
     const execResponse = await client.createExecution({
       parent: client.workflowPath(GOOGLE_CLOUD_PROJECT, WORKFLOW_REGION, WORKFLOW_NAME),
       execution: {
-        argument: JSON.stringify({file, bucket, eventType: "OBJECT_FINALIZE"})
+        argument: JSON.stringify({file, bucket, eventType, urls})
       }
     });
     console.log(`Execution response: ${JSON.stringify(execResponse)}`);
