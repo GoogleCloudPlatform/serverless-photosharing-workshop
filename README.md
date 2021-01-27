@@ -6,6 +6,11 @@ This is the code for the Pic-a-daily, an application to upload, analyse and
 share pictures using Google Cloud serverless solutions, namely Cloud Functions,
 App Engine, and Cloud Run.
 
+There are 2 versions of the app:
+
+1. Choreographed version using events from Cloud Functions, Pub/Sub, Eventarc.
+2. Orchestrated version using Workflows.
+
 ## Labs
 
 There is a workshop you can follow to build the app:
@@ -22,12 +27,17 @@ There's a [presentation](https://speakerdeck.com/meteatamel/pic-a-daily-serverle
 
 [![Pic-a-Daily Serverless Workshop](./pic-a-daily-presentation.png)](https://speakerdeck.com/meteatamel/pic-a-daily-serverless-workshop)
 
-## Architecture
+## Architecture (Choreographed)
 
-At the end of the labs, this will be the final architecture:
+This is the choreographed (event-driven) architecture:
 
-![Pic-a-daily Architecture](./pic-a-daily-architecture.png)
+![Pic-a-daily Architecture - Choreographed](./pic-a-daily-architecture-events.png)
 
+## Architecture (Orchestrated)
+
+This is the orchestarted architecture:
+
+![Pic-a-daily Architecture - Orchestrated](./pic-a-daily-architecture-workflows.png)
 
 ## Solutions used
 
@@ -52,6 +62,7 @@ Services:
 * [Cloud Scheduler](https://cloud.google.com/scheduler/) — to run workloads on a schedule
 * [Cloud Pub/Sub](https://cloud.google.com/pubsub) — for publish/subscribe-type messaging
 * [Cloud Shell](https://cloud.google.com/shell) — for developing online, in the cloud
+* [Workflows](https://cloud.google.com/workflows) - to orchestrate services
 
 -------
 
