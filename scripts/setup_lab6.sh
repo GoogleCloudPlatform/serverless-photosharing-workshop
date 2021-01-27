@@ -5,6 +5,7 @@ export BUCKET_NAME=uploaded-pictures-${GOOGLE_CLOUD_PROJECT}
 export BUCKET_THUMBNAILS=thumbnails-${GOOGLE_CLOUD_PROJECT}
 
 # Enable APIs
+gcloud services enable compute.googleapis.com
 gcloud services enable appengine.googleapis.com
 gcloud services enable firestore.googleapis.com
 gcloud services enable vision.googleapis.com
@@ -191,5 +192,20 @@ gcloud functions deploy ${SERVICE_NAME} \
   --set-env-vars GOOGLE_CLOUD_PROJECT=${GOOGLE_CLOUD_PROJECT},WORKFLOW_REGION=${WORKFLOW_REGION},WORKFLOW_NAME=${WORKFLOW_NAME},THUMBNAILS_URL=${THUMBNAILS_URL},COLLAGE_URL=${COLLAGE_URL},GARBAGE_COLLECTOR_URL=${GARBAGE_COLLECTOR_URL},VISION_DATA_TRANSFORM_URL=${VISION_DATA_TRANSFORM_URL}
 
 read -p "Press [Enter] to continue..."
+
+###########################
+# App Engine web frontend #
+
+# Source folder name for the lab
+export SERVICE_SRC=frontend
+
+# Add project id to the env variables in app.yaml
+sed -i -e "s/GOOGLE_CLOUD_PROJECT/${GOOGLE_CLOUD_PROJECT}/" ../${SERVICE_SRC}/app.yaml
+
+# Set the region
+gcloud config set compute/region europe-west1
+
+# Deploy to App Engine
+gcloud app deploy ../${SERVICE_SRC}/app.yaml -q
 
 set +v
