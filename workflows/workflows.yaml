@@ -13,7 +13,7 @@ main:
             - condition: ${args.eventType == "google.storage.object.finalize"}
               next: imageAnalysisCall
             - condition: ${args.eventType == "google.storage.object.delete"}
-              next: garbageCollectorCall
+              next: pictureGarbageCollectionGCS
     - eventTypeNotSupported:
         raise: ${"eventType " + args.eventType + " is not supported"}
         next: end
@@ -88,15 +88,29 @@ main:
           storeMetadata: ${storeMetadataResponse.code}
           thumbnail: ${thumbnailResponse.code}
           collage: ${collageResponse.code}
-    - garbageCollectorCall:
-        call: http.post
+    - pictureGarbageCollectionGCS:
+        try:
+          call: http.request
+          args:
+            url: ${"https://storage.googleapis.com/storage/v1/b/thumbnails-" + projectId + "/o/" + file}
+            auth:
+              type: OAuth2
+            method: DELETE
+          result: gcsDeletionResult
+        except:
+          as: e
+          steps:
+            - returningEmptyOnFailure:
+                next: pictureGarbageCollectionFirestore
+    - pictureGarbageCollectionFirestore:
+        call: http.request
         args:
-          url: ${urls.GARBAGE_COLLECTOR_URL}
+          url: ${"https://firestore.googleapis.com/v1/projects/" + projectId + "/databases/(default)/documents/pictures/" + file}
           auth:
-            type: OIDC
-          body:
-              gcsImageUri: ${gsUri}
-        result: garbageCollectorResponse
+            type: OAuth2
+          method: DELETE
+        result: firestoreDeletionResult    
     - deleteCompleted:
         return:
-          garbageCollectorCode: ${garbageCollectorResponse.code}
+          gcsDeletion: ${gcsDeletionResult.code}
+          firestoreDeletion: ${firestoreDeletionResult.code}

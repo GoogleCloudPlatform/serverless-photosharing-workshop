@@ -33,8 +33,6 @@ gsutil mb -l EU gs://${BUCKET_THUMBNAILS}
 gsutil uniformbucketlevelaccess set on gs://${BUCKET_THUMBNAILS}
 gsutil iam ch allUsers:objectViewer gs://${BUCKET_THUMBNAILS}
 
-read -p "Press [Enter] to continue..."
-
 ###################
 # Setup Firestore #
 
@@ -46,8 +44,6 @@ gcloud alpha firestore databases create --region=${REGION_FIRESTORE}
 gcloud alpha firestore indexes composite create --collection-group=pictures \
   --field-config field-path=thumbnail,order=descending \
   --field-config field-path=created,order=descending
-
-read -p "Press [Enter] to continue..."
 
 #####################
 # Thumbnail Service #
@@ -73,8 +69,6 @@ gcloud run deploy ${SERVICE_NAME} \
 export THUMBNAILS_URL=$(gcloud run services describe ${SERVICE_NAME} --format 'value(status.url)')
 echo $THUMBNAILS_URL
 
-read -p "Press [Enter] to continue..."
-
 ###################
 # Collage Service #
 
@@ -99,33 +93,6 @@ gcloud run deploy ${SERVICE_NAME} \
 export COLLAGE_URL=$(gcloud run services describe ${SERVICE_NAME} --format 'value(status.url)')
 echo $COLLAGE_URL
 
-read -p "Press [Enter] to continue..."
-
-#####################
-# Garbage Collector #
-
-# Source folder name for the lab
-export SERVICE_SRC=garbage-collector
-
-# Build the container
-export SERVICE_NAME=${SERVICE_SRC}-service
-
-## Node.js
-gcloud builds submit \
-  ../workflows/services/${SERVICE_SRC}/nodejs \
-  --tag gcr.io/${GOOGLE_CLOUD_PROJECT}/${SERVICE_NAME}
-
-## Node.js
-gcloud run deploy ${SERVICE_NAME} \
-    --image gcr.io/${GOOGLE_CLOUD_PROJECT}/${SERVICE_NAME} \
-    --no-allow-unauthenticated \
-    --update-env-vars BUCKET_THUMBNAILS=${BUCKET_THUMBNAILS}
-
-export GARBAGE_COLLECTOR_URL=$(gcloud run services describe ${SERVICE_NAME} --format 'value(status.url)')
-echo $GARBAGE_COLLECTOR_URL
-
-read -p "Press [Enter] to continue..."
-
 #######################################
 # Vision Data Transformation Function #
 
@@ -144,8 +111,6 @@ gcloud functions deploy ${SERVICE_NAME} \
 
 export VISION_DATA_TRANSFORM_URL=$(gcloud functions describe vision-data-transform --format 'value(httpsTrigger.url)')
 echo $VISION_DATA_TRANSFORM_URL
-
-read -p "Press [Enter] to continue..."
 
 #######################
 # Workflow deployment #
@@ -190,8 +155,6 @@ gcloud functions deploy ${SERVICE_NAME} \
   --trigger-event=google.storage.object.delete \
   --allow-unauthenticated \
   --set-env-vars GOOGLE_CLOUD_PROJECT=${GOOGLE_CLOUD_PROJECT},WORKFLOW_REGION=${WORKFLOW_REGION},WORKFLOW_NAME=${WORKFLOW_NAME},THUMBNAILS_URL=${THUMBNAILS_URL},COLLAGE_URL=${COLLAGE_URL},GARBAGE_COLLECTOR_URL=${GARBAGE_COLLECTOR_URL},VISION_DATA_TRANSFORM_URL=${VISION_DATA_TRANSFORM_URL}
-
-read -p "Press [Enter] to continue..."
 
 ###########################
 # App Engine web frontend #
