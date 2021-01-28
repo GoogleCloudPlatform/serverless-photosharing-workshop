@@ -100,8 +100,11 @@ main:
         except:
           as: e
           steps:
-            - returningEmptyOnFailure:
-                next: pictureGarbageCollectionFirestore
+              - dummyResultInOutVar:
+                  assign:
+                      - gcsDeletionResult:
+                          code: 200
+                          body: "Workaround for empty body response"
     - pictureGarbageCollectionFirestore:
         call: http.request
         args:
