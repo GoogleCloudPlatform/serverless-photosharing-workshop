@@ -18,8 +18,8 @@ gsutil iam ch allUsers:objectViewer gs://${BUCKET_NAME}
 # Create an App Engine app (requirement for Firestore) and Firestore in EU
 REGION_FIRESTORE=europe-west2
 gcloud app create --region=${REGION_FIRESTORE}
-gcloud alpha firestore databases create --region=${REGION_FIRESTORE}
-gcloud alpha firestore indexes composite create --collection-group=pictures \
+gcloud firestore databases create --region=${REGION_FIRESTORE}
+gcloud firestore indexes composite create --collection-group=pictures \
   --field-config field-path=thumbnail,order=descending \
   --field-config field-path=created,order=descending
 
