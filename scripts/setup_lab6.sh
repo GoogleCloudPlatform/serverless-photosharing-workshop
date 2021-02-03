@@ -1,8 +1,6 @@
 set -v
 
 export GOOGLE_CLOUD_PROJECT=$(gcloud config get-value project)
-export BUCKET_NAME=uploaded-pictures-${GOOGLE_CLOUD_PROJECT}
-export BUCKET_THUMBNAILS=thumbnails-${GOOGLE_CLOUD_PROJECT}
 
 # Enable APIs
 gcloud services enable compute.googleapis.com
@@ -14,19 +12,15 @@ gcloud services enable run.googleapis.com
 gcloud services enable cloudfunctions.googleapis.com
 gcloud services enable workflows.googleapis.com
 
-# Deploylent settings for Cloud Run and Cloud Functions
-export REGION=europe-west1
-gcloud config set run/region ${REGION}
-gcloud config set run/platform managed
-gcloud config set functions/region ${REGION}
-
 #####################
 # Setup GCS buckets #
+export BUCKET_PICTURES=uploaded-pictures-${GOOGLE_CLOUD_PROJECT}
+export BUCKET_THUMBNAILS=thumbnails-${GOOGLE_CLOUD_PROJECT}
 
 # Create a public EU multi-region bucket with uniform access
-gsutil mb -l EU gs://${BUCKET_NAME}
-gsutil uniformbucketlevelaccess set on gs://${BUCKET_NAME}
-gsutil iam ch allUsers:objectViewer gs://${BUCKET_NAME}
+gsutil mb -l EU gs://${BUCKET_PICTURES}
+gsutil uniformbucketlevelaccess set on gs://${BUCKET_PICTURES}
+gsutil iam ch allUsers:objectViewer gs://${BUCKET_PICTURES}
 
 # Create a public EU multi-region bucket with uniform access
 gsutil mb -l EU gs://${BUCKET_THUMBNAILS}
@@ -44,6 +38,12 @@ gcloud firestore databases create --region=${REGION_FIRESTORE}
 gcloud firestore indexes composite create --collection-group=pictures \
   --field-config field-path=thumbnail,order=descending \
   --field-config field-path=created,order=descending
+
+#####################################
+# Deployment settings for Cloud Run #
+export REGION=europe-west1
+gcloud config set run/region ${REGION}
+gcloud config set run/platform managed
 
 #####################
 # Thumbnail Service #
@@ -93,6 +93,10 @@ gcloud run deploy ${SERVICE_NAME} \
 export COLLAGE_URL=$(gcloud run services describe ${SERVICE_NAME} --format 'value(status.url)')
 echo $COLLAGE_URL
 
+###########################################
+# Deployment settings for Cloud Functions #
+gcloud config set functions/region ${REGION}
+
 #######################################
 # Vision Data Transformation Function #
 
@@ -102,7 +106,6 @@ export SERVICE_NAME=${SERVICE_SRC}
 
 ## Node.js
 gcloud functions deploy ${SERVICE_NAME} \
-  --region=${REGION} \
   --source=../workflows/functions/${SERVICE_SRC}/nodejs \
   --runtime nodejs10 \
   --entry-point=vision_data_transform \
@@ -132,14 +135,13 @@ export SERVICE_NAME=${SERVICE_SRC}-on-finalize
 
 ## Node.js
 gcloud functions deploy ${SERVICE_NAME} \
-  --region=${REGION} \
   --source=../workflows/functions/${SERVICE_SRC}/nodejs \
   --runtime nodejs10 \
   --entry-point=trigger_workflow \
-  --trigger-resource=${BUCKET_NAME} \
+  --trigger-resource=${BUCKET_PICTURES} \
   --trigger-event=google.storage.object.finalize \
   --allow-unauthenticated \
-  --set-env-vars GOOGLE_CLOUD_PROJECT=${GOOGLE_CLOUD_PROJECT},WORKFLOW_REGION=${WORKFLOW_REGION},WORKFLOW_NAME=${WORKFLOW_NAME},THUMBNAILS_URL=${THUMBNAILS_URL},COLLAGE_URL=${COLLAGE_URL},GARBAGE_COLLECTOR_URL=${GARBAGE_COLLECTOR_URL},VISION_DATA_TRANSFORM_URL=${VISION_DATA_TRANSFORM_URL}
+  --set-env-vars GOOGLE_CLOUD_PROJECT=${GOOGLE_CLOUD_PROJECT},WORKFLOW_REGION=${WORKFLOW_REGION},WORKFLOW_NAME=${WORKFLOW_NAME},THUMBNAILS_URL=${THUMBNAILS_URL},COLLAGE_URL=${COLLAGE_URL},VISION_DATA_TRANSFORM_URL=${VISION_DATA_TRANSFORM_URL}
 
 # Trigger workflow for DELETION event
 
@@ -147,14 +149,13 @@ export SERVICE_NAME=${SERVICE_SRC}-on-delete
 
 ## Node.js
 gcloud functions deploy ${SERVICE_NAME} \
-  --region=${REGION} \
   --source=../workflows/functions/${SERVICE_SRC}/nodejs \
   --runtime nodejs10 \
   --entry-point=trigger_workflow \
-  --trigger-resource=${BUCKET_NAME} \
+  --trigger-resource=${BUCKET_PICTURES} \
   --trigger-event=google.storage.object.delete \
   --allow-unauthenticated \
-  --set-env-vars GOOGLE_CLOUD_PROJECT=${GOOGLE_CLOUD_PROJECT},WORKFLOW_REGION=${WORKFLOW_REGION},WORKFLOW_NAME=${WORKFLOW_NAME},THUMBNAILS_URL=${THUMBNAILS_URL},COLLAGE_URL=${COLLAGE_URL},GARBAGE_COLLECTOR_URL=${GARBAGE_COLLECTOR_URL},VISION_DATA_TRANSFORM_URL=${VISION_DATA_TRANSFORM_URL}
+  --set-env-vars GOOGLE_CLOUD_PROJECT=${GOOGLE_CLOUD_PROJECT},WORKFLOW_REGION=${WORKFLOW_REGION},WORKFLOW_NAME=${WORKFLOW_NAME},THUMBNAILS_URL=${THUMBNAILS_URL},COLLAGE_URL=${COLLAGE_URL},VISION_DATA_TRANSFORM_URL=${VISION_DATA_TRANSFORM_URL}
 
 ###########################
 # App Engine web frontend #
