@@ -20,6 +20,7 @@ There is a workshop you can follow to build the app:
 * [Lab 3 — Run containers on a schedule](https://codelabs.developers.google.com/codelabs/cloud-picadaily-lab3)
 * [Lab 4 — Create a web frontend](https://codelabs.developers.google.com/codelabs/cloud-picadaily-lab4)
 * [Lab 5 — Image garbage collector](https://codelabs.developers.google.com/codelabs/cloud-picadaily-lab5)
+* [Lab 6 — Microservices orchestration](https://codelabs.developers.google.com/codelabs/cloud-picadaily-lab6)
 
 ## Presentation
 
