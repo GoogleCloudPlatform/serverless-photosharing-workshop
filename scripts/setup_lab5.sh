@@ -66,7 +66,7 @@ gcloud eventarc triggers create trigger-${SERVICE_NAME} \
   --event-filters="type=google.cloud.audit.log.v1.written" \
   --event-filters="serviceName=storage.googleapis.com" \
   --event-filters="methodName=storage.objects.delete" \
-  --event-filters=${PROJECT_NUMBER}-compute@developer.gserviceaccount.com
+  --service-account=${PROJECT_NUMBER}-compute@developer.gserviceaccount.com
 
 
 
