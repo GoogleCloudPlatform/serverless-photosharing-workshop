@@ -94,7 +94,7 @@ func handleRequest(env config) func(w http.ResponseWriter, r *http.Request) {
 		args := []string{"convert",
 			"(", localFiles[0], localFiles[1], "+append", ")",
 			"(", localFiles[2], localFiles[3], "+append", ")",
-			"-size", "400x400", "xc:none", "-background", "none", "-append",
+			"-size", "400x400", "xc:none", "-background", "none", "-append", "-trim",
 			collagePath,
 		}
 
