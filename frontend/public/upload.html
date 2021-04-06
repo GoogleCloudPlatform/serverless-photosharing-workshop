@@ -60,7 +60,7 @@
 		<div class="container" id="upload">
             <form method="POST" action="/api/pictures" enctype="multipart/form-data">
                 <div class="field">
-                    <div class="file is-boxed">
+                    <div id="file-js-example" class="file is-boxed has-name">
                         <label class="file-label">
                             <input class="file-input" type="file" name="picture">
                             <span class="file-cta">
@@ -70,6 +70,8 @@
                                 <span class="file-label">
                                     Choose a file...
                                 </span>
+                            </span>
+                            <span class="file-name">
                             </span>
                         </label>
                     </div>
@@ -82,6 +84,18 @@
             </form>
 		</div>
 	</section>
+
+	<script>
+	// https://bulma.io/documentation/form/file/#javascript
+	const fileInput = document.querySelector('#file-js-example input[type=file]');
+	fileInput.onchange = () => {
+	  if (fileInput.files.length > 0) {
+	    const fileName = document.querySelector('#file-js-example .file-name');
+	    fileName.textContent = fileInput.files[0].name;
+	  }
+	}
+	</script>
+
 </body>
 
 </html>
