@@ -59,7 +59,7 @@ app.post('/', async (req, res) => {
             await convert([
                 '(', ...thumbnailPaths.slice(0, 2), '+append', ')',
                 '(', ...thumbnailPaths.slice(2), '+append', ')',
-                '-size', '400x400', 'xc:none', '-background', 'none',  '-append',
+                '-size', '400x400', 'xc:none', '-background', 'none',  '-append', '-trim',
                 collagePath]);
             console.log("Created local collage picture");
 
