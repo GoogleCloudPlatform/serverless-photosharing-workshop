@@ -44,17 +44,12 @@ gcloud run deploy ${SERVICE_NAME} \
 
 # Set up Eventarc
 
-# Give Pub/Sub service account serviceAccountTokenCreator role
+# Give default Compute service account eventarc.eventReceiver role
 export PROJECT_NUMBER="$(gcloud projects list --filter=$(gcloud config get-value project) --format='value(PROJECT_NUMBER)')"
 
 gcloud projects add-iam-policy-binding $(gcloud config get-value project) \
-    --member="serviceAccount:service-${PROJECT_NUMBER}@gcp-sa-pubsub.iam.gserviceaccount.com"\
-    --role='roles/iam.serviceAccountTokenCreator'
-
-# Give Compute service account eventarc.admin role
-gcloud projects add-iam-policy-binding $(gcloud config get-value project) \
     --member=serviceAccount:${PROJECT_NUMBER}-compute@developer.gserviceaccount.com \
-    --role='roles/eventarc.admin'
+    --role='roles/eventarc.eventReceiver'
 
 # Set eventarc/location
 gcloud config set eventarc/location ${REGION}
