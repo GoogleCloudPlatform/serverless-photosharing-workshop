@@ -80,7 +80,7 @@ export SERVICE_NAME=${SERVICE_SRC}-service
 
 ## Node.js
 gcloud builds submit \
-  ../workflows/services/${SERVICE_SRC}/nodejs \
+  ../services/${SERVICE_SRC}/nodejs \
   --tag gcr.io/${GOOGLE_CLOUD_PROJECT}/${SERVICE_NAME}
 
 ## Node.js

@@ -56,7 +56,7 @@ gcloud run services add-iam-policy-binding ${SERVICE_NAME} \
 # Create a Cloud Scheduler job to execute every 1 minute
 export SERVICE_URL="$(gcloud run services list --platform managed --filter=${SERVICE_NAME} --format='value(URL)')"
 gcloud scheduler jobs create http ${SERVICE_NAME}-job --schedule "* * * * *" \
-   --http-method=POST \
+   --http-method=GET \
    --uri=${SERVICE_URL} \
    --oidc-service-account-email=${SERVICE_ACCOUNT}@${GOOGLE_CLOUD_PROJECT}.iam.gserviceaccount.com \
    --oidc-token-audience=${SERVICE_URL}
