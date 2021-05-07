@@ -29,17 +29,17 @@ app.post('/', async (req, res) => {
 
         // gs://uploaded-pictures-workflows-atamel/atamel.jpg
         const gcsImageUri = req.body.gcsImageUri;
-        const tokens = gcsImageUri.substr(5).split('/');
-        const fileEvent = {bucket: tokens[0], name: tokens[1]};
+        const [bucket, name] = gcsImageUri.substr(5).split('/');
+        const fileEvent = { bucket, name };
         console.log(`Received thumbnail request for file '${fileEvent.name}' from bucket '${fileEvent.bucket}'`);
 
-        const bucket = storage.bucket(fileEvent.bucket);
+        const uploadedImagesBucket = storage.bucket(fileEvent.bucket);
         const thumbBucket = storage.bucket(process.env.BUCKET_THUMBNAILS);
 
         const originalFile = path.resolve('/tmp/original', fileEvent.name);
         const thumbFile = path.resolve('/tmp/thumbnail', fileEvent.name);
 
-        await bucket.file(fileEvent.name).download({
+        await uploadedImagesBucket.file(fileEvent.name).download({
             destination: originalFile
         });
         console.log(`Downloaded picture into ${originalFile}`);

@@ -15,7 +15,6 @@
 const express = require('express');
 const fileUpload = require('express-fileupload');
 const Firestore = require('@google-cloud/firestore');
-const Promise = require("bluebird");
 const {Storage} = require('@google-cloud/storage');
 const storage = new Storage();
 const path = require('path');
@@ -39,8 +38,7 @@ app.post('/api/pictures', async (req, res) => {
     console.log(`Receiving file ${JSON.stringify(req.files.picture)}`);
 
     const newPicture = path.resolve('/tmp', req.files.picture.name);
-    const mv = Promise.promisify(req.files.picture.mv);
-    await mv(newPicture);
+    await req.files.picture.mv(newPicture);
     console.log('File moved in temporary directory');
 
     const pictureBucket = storage.bucket(process.env.BUCKET_PICTURES);
@@ -76,15 +74,15 @@ app.get('/api/pictures', async (req, res) => {
     res.send(thumbnails);
 });
 
-app.get('/api/pictures/:name', async (req, res) => {
+app.get('/api/pictures/:name', (req, res) => {
     res.redirect(`https://storage.googleapis.com/${process.env.BUCKET_PICTURES}/${req.params.name}`);
 });
 
-app.get('/api/thumbnails/:name', async (req, res) => {
+app.get('/api/thumbnails/:name', (req, res) => {
     res.redirect(`https://storage.googleapis.com/${process.env.BUCKET_THUMBNAILS}/${req.params.name}`);
 });
 
-app.get('/api/collage', async (req, res) => {
+app.get('/api/collage', (req, res) => {
     res.redirect(`https://storage.googleapis.com/${process.env.BUCKET_THUMBNAILS}/collage.png`);
 });
 
