@@ -2,30 +2,33 @@
 
 set -v
 
-# Enable APIs
-gcloud services enable vision.googleapis.com
-gcloud services enable cloudfunctions.googleapis.com
+# Enable services
 gcloud services enable appengine.googleapis.com
-gcloud services enable firestore.googleapis.com
 gcloud services enable cloudbuild.googleapis.com
+gcloud services enable cloudfunctions.googleapis.com
+gcloud services enable firestore.googleapis.com
+gcloud services enable vision.googleapis.com
 
-# Create a public EU multi-region bucket with uniform access
+# Create a public multi-region bucket with uniform level access
 export BUCKET_NAME=uploaded-pictures-${GOOGLE_CLOUD_PROJECT}
-gsutil mb -l EU gs://${BUCKET_NAME}
+export BUCKET_LOCATION=EU # EU, USA, ASIA
+
+gsutil mb -l ${BUCKET_LOCATION} gs://${BUCKET_NAME}
 gsutil uniformbucketlevelaccess set on gs://${BUCKET_NAME}
 gsutil iam ch allUsers:objectViewer gs://${BUCKET_NAME}
 
-# Create an App Engine app (requirement for Firestore) and Firestore in EU
-REGION_FIRESTORE=europe-west2
-gcloud app create --region=${REGION_FIRESTORE}
-gcloud firestore databases create --region=${REGION_FIRESTORE}
+# Create an App Engine app (requirement for Firestore) and Firestore
+export REGION=europe-west2
+gcloud app create --region=${REGION}
+gcloud firestore databases create --region=${REGION}
+
+# Create Firestore index
 gcloud firestore indexes composite create --collection-group=pictures \
   --field-config field-path=thumbnail,order=descending \
   --field-config field-path=created,order=descending
 
 # Deploy the Cloud Function
 export SERVICE_NAME=picture-uploaded
-export REGION=europe-west1
 
 ## Node.js
 gcloud functions deploy ${SERVICE_NAME} \
