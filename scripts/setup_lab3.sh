@@ -36,7 +36,7 @@ gcloud builds submit \
 #   --tag gcr.io/${GOOGLE_CLOUD_PROJECT}/${SERVICE_NAME}
 
 # Deploy to Cloud Run
-export REGION=europe-west1
+export REGION=europe-west2
 gcloud config set run/region ${REGION}
 gcloud config set run/platform managed
 export BUCKET_NAME=thumbnails-${GOOGLE_CLOUD_PROJECT}
