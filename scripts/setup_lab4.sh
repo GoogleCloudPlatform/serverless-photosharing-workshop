@@ -23,7 +23,7 @@ export SERVICE_SRC=frontend
 sed -i -e "s/GOOGLE_CLOUD_PROJECT/${GOOGLE_CLOUD_PROJECT}/" ../${SERVICE_SRC}/app.yaml
 
 # Set the region
-gcloud config set compute/region europe-west1
+gcloud config set compute/region europe-west2
 
 # Deploy to App Engine
 gcloud app deploy ../${SERVICE_SRC}/app.yaml -q

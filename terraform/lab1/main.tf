@@ -20,8 +20,9 @@ provider "google" {
 }
 
 locals {
-  bucket_name = "uploaded-pictures-${var.project_id}"
+  service_src = "image-analysis"
   service_name = "picture-uploaded"
+  bucket_name = "uploaded-pictures-${var.project_id}"
 }
 
 # List of services to enable
@@ -83,27 +84,26 @@ resource "google_firestore_index" "default" {
 }
 
 # Zip the source code
-data "archive_file" "image_analysis" {
+data "archive_file" "default" {
   type        = "zip"
-  source_dir  = "${path.module}/../../functions/image-analysis/nodejs/"
-  output_path = "tmp/image_analysis.zip"
+  source_dir  = "${path.module}/../../functions/${local.service_src}/nodejs/"
+  output_path = "tmp/${local.service_src}.zip"
   excludes    = [ "node_modules", "package-lock.json" ]
 }
 
-# Create a storage bucket for Cloud Functions src
+# Create a storage bucket for the source
 resource "google_storage_bucket" "source" {
-  name = "source-${var.project_id}"
+  name = "source-${local.service_src}-${var.project_id}"
 }
 
-# Upload the zip to the bucket
-# The archive in Cloud Stoage uses the md5 of the zip file.
+# Upload the zip to the bucket. The archive in Cloud Stoage uses the md5 of the zip file.
 # This ensures the function is redeployed only when the source is changed.
-resource "google_storage_bucket_object" "image_analysis" {
-  name   = "image_analysis_${data.archive_file.image_analysis.output_md5}.zip"
+resource "google_storage_bucket_object" "default" {
+  name   = "${local.service_src}_${data.archive_file.default.output_md5}.zip"
   bucket = google_storage_bucket.source.name
-  source = data.archive_file.image_analysis.output_path
+  source = data.archive_file.default.output_path
 
-  depends_on = [data.archive_file.image_analysis]
+  depends_on = [data.archive_file.default, google_storage_bucket.source]
 }
 
 # Deploy the Cloud Function
@@ -113,7 +113,7 @@ resource "google_cloudfunctions_function" "default" {
   name                  = local.service_name
   region                = var.region
   source_archive_bucket = google_storage_bucket.source.name
-  source_archive_object = google_storage_bucket_object.image_analysis.name
+  source_archive_object = google_storage_bucket_object.default.name
   runtime               = "nodejs10"
   entry_point           = "vision_analysis"
   event_trigger {
