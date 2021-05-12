@@ -5,11 +5,10 @@ set -v
 # Source folder name for the lab
 export SERVICE_SRC=thumbnails
 
-# Enable APIs
-gcloud services enable cloudbuild.googleapis.com
+# Enable services
 gcloud services enable run.googleapis.com
 
-# Create a public EU multi-region bucket with uniform access
+# Create a public multi-region bucket with uniform level access
 export BUCKET_NAME=${SERVICE_SRC}-${GOOGLE_CLOUD_PROJECT}
 gsutil mb -l EU gs://${BUCKET_NAME}
 gsutil uniformbucketlevelaccess set on gs://${BUCKET_NAME}
@@ -67,11 +66,12 @@ gcloud run services add-iam-policy-binding ${SERVICE_NAME} \
    --member=serviceAccount:${SERVICE_ACCOUNT}@${GOOGLE_CLOUD_PROJECT}.iam.gserviceaccount.com \
    --role=roles/run.invoker
 
+# Not needed anymore
 # Enable Pub/Sub to create authentication tokens in our project
-export PROJECT_NUMBER="$(gcloud projects list --filter=${GOOGLE_CLOUD_PROJECT} --format='value(PROJECT_NUMBER)')"
-gcloud projects add-iam-policy-binding ${GOOGLE_CLOUD_PROJECT} \
-     --member=serviceAccount:service-${PROJECT_NUMBER}@gcp-sa-pubsub.iam.gserviceaccount.com \
-     --role=roles/iam.serviceAccountTokenCreator
+# export PROJECT_NUMBER="$(gcloud projects list --filter=${GOOGLE_CLOUD_PROJECT} --format='value(PROJECT_NUMBER)')"
+# gcloud projects add-iam-policy-binding ${GOOGLE_CLOUD_PROJECT} \
+#      --member=serviceAccount:service-${PROJECT_NUMBER}@gcp-sa-pubsub.iam.gserviceaccount.com \
+#      --role=roles/iam.serviceAccountTokenCreator
 
 # Finally, create a Pub/Sub subscription with the service account
 export SERVICE_URL="$(gcloud run services list --platform managed --filter=${SERVICE_NAME} --format='value(URL)')"

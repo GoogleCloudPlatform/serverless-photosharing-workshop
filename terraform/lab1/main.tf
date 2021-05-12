@@ -19,6 +19,11 @@ provider "google" {
   region  = var.region
 }
 
+locals {
+  bucket_name = "uploaded-pictures-${var.project_id}"
+  service_name = "picture-uploaded"
+}
+
 # List of services to enable
 variable "gcp_services" {
   type = list(string)
@@ -38,11 +43,7 @@ resource "google_project_service" "default" {
   disable_on_destroy = false
 }
 
-# Create a public multi-region bucket with uniform level access
-locals {
-  bucket_name = "uploaded-pictures-${var.project_id}"
-}
-
+# Create a multi-region bucket
 resource "google_storage_bucket" "bucket" {
   name          = local.bucket_name
   location      = var.bucket_location
@@ -51,6 +52,7 @@ resource "google_storage_bucket" "bucket" {
   #uniform_bucket_level_access = true
 }
 
+# Make the bucket public
 resource "google_storage_bucket_access_control" "public_rule" {
   bucket = google_storage_bucket.bucket.name
   role   = "READER"
@@ -105,9 +107,6 @@ resource "google_storage_bucket_object" "image_analysis" {
 }
 
 # Deploy the Cloud Function
-locals {
-  service_name = "picture-uploaded"
-}
 
 ## Node.js
 resource "google_cloudfunctions_function" "default" {
