@@ -44,20 +44,20 @@ resource "google_project_service" "default" {
   disable_on_destroy = false
 }
 
-# Create a multi-region bucket
+# Create a multi-region bucket with uniform bucket level access
 resource "google_storage_bucket" "bucket" {
   name          = local.bucket_name
   location      = var.bucket_location
   force_destroy = true
 
-  #uniform_bucket_level_access = true
+  uniform_bucket_level_access = true
 }
 
 # Make the bucket public
-resource "google_storage_bucket_access_control" "public_rule" {
+resource "google_storage_bucket_iam_member" "member" {
   bucket = google_storage_bucket.bucket.name
-  role   = "READER"
-  entity = "allUsers"
+  role = "roles/storage.objectViewer"
+  member = "allUsers"
 }
 
 # Create an App Engine app (requirement for Firestore) and Firestore
