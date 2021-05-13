@@ -20,25 +20,27 @@ There is a workshop you can follow to build the app:
 * [Lab 3 — Run containers on a schedule](https://codelabs.developers.google.com/codelabs/cloud-picadaily-lab3)
 * [Lab 4 — Create a web frontend](https://codelabs.developers.google.com/codelabs/cloud-picadaily-lab4)
 * [Lab 5 — Image garbage collector](https://codelabs.developers.google.com/codelabs/cloud-picadaily-lab5)
-* [Lab 6 — Microservices orchestration](https://codelabs.developers.google.com/codelabs/cloud-picadaily-lab6)
+* [Lab 6 — Orchestration with Workflows](https://codelabs.developers.google.com/codelabs/cloud-picadaily-lab6)
 
 ## Presentation
 
 There's a [presentation](https://speakerdeck.com/meteatamel/pic-a-daily-serverless-workshop) that accompanies the workshop.
 
-[![Pic-a-Daily Serverless Workshop](./pic-a-daily-presentation.png)](https://speakerdeck.com/meteatamel/pic-a-daily-serverless-workshop)
+<a href="https://speakerdeck.com/meteatamel/pic-a-daily-serverless-workshop">
+    <img alt="Pic-a-Daily Serverless Workshop" src="pic-a-daily-presentation.png" width="50%" height="50%">
+</a>
 
-## Architecture (Choreographed)
+## Architecture - Choreographed (event-driven)
 
-This is the choreographed (event-driven) architecture:
+<img alt="Pic-a-daily Architecture - Choreographed" src="pic-a-daily-architecture-events.png" width="50%" height="50%">
 
-![Pic-a-daily Architecture - Choreographed](./pic-a-daily-architecture-events.png)
+## Architecture - Orchestrated
 
-## Architecture (Orchestrated)
+<img alt="Pic-a-daily Architecture - Orchestrated" src="pic-a-daily-architecture-workflows.png" width="50%" height="50%">
 
-This is the orchestarted architecture:
+## Scripts and Terraform
 
-![Pic-a-daily Architecture - Orchestrated](./pic-a-daily-architecture-workflows.png)
+There are shell [scripts](scripts) and [terraform](terraform) configs to setup each lab.
 
 ## Solutions used
 
