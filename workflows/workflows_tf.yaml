@@ -1,0 +1,135 @@
+# Copyright 2021 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Identical to workflows.yaml, except it escapes $ for Terraform import
+
+main:
+  params: [args]
+  steps:
+    - init:
+        assign:
+          - file: $${args.file}
+          - bucket: $${args.bucket}
+          - gsUri: $${"gs://" + bucket + "/" + file}
+          - projectId: $${sys.get_env("GOOGLE_CLOUD_PROJECT_ID")}
+          - urls: $${args.urls}
+    - eventTypeSwitch:
+        switch:
+            - condition: $${args.eventType == "google.storage.object.finalize"}
+              next: imageAnalysisCall
+            - condition: $${args.eventType == "google.storage.object.delete"}
+              next: pictureGarbageCollectionGCS
+    - eventTypeNotSupported:
+        raise: $${"eventType " + args.eventType + " is not supported"}
+        next: end
+    - imageAnalysisCall:
+        call: http.post
+        args:
+          url: https://vision.googleapis.com/v1/images:annotate
+          headers:
+            Content-Type: application/json
+          auth:
+            type: OAuth2
+          body:
+            requests:
+            - image:
+                source:
+                  gcsImageUri: $${gsUri}
+              features:
+              - type: LABEL_DETECTION
+              - type: SAFE_SEARCH_DETECTION
+              - type: IMAGE_PROPERTIES
+        result: imageAnalysisResponse
+    - transformImageAnalysisData:
+        call: http.post
+        args:
+          url: $${urls.VISION_DATA_TRANSFORM_URL}
+          auth:
+            type: OIDC
+          body: $${imageAnalysisResponse.body}
+        result: imageMetadata
+    - checkSafety:
+        switch:
+          - condition: $${imageMetadata.body.safe == true}
+            next: storeMetadata
+        next: end
+    - storeMetadata:
+        call: http.request
+        args:
+          url: $${"https://firestore.googleapis.com/v1/projects/" + projectId + "/databases/(default)/documents/pictures/" + file + "?updateMask.fieldPaths=color&updateMask.fieldPaths=labels&updateMask.fieldPaths=created"}
+          auth:
+            type: OAuth2
+          method: PATCH
+          body:
+            name: $${"projects/" + projectId + "/databases/(default)/documents/pictures/" + file}
+            fields:
+              color:
+                stringValue: $${imageMetadata.body.color}
+              created:
+                timestampValue: $${imageMetadata.body.created}
+              labels:
+                arrayValue:
+                  values: $${imageMetadata.body.labels}
+        result: storeMetadataResponse
+    - thumbnailCall:
+        call: http.post
+        args:
+          url: $${urls.THUMBNAILS_URL}
+          auth:
+            type: OIDC
+          body:
+              gcsImageUri: $${gsUri}
+        result: thumbnailResponse
+    - collageCall:
+        call: http.get
+        args:
+          url: $${urls.COLLAGE_URL}
+          auth:
+            type: OIDC
+        result: collageResponse
+    - finalizeCompleted:
+        return:
+          imageAnalysis: $${imageAnalysisResponse.code}
+          storeMetadata: $${storeMetadataResponse.code}
+          thumbnail: $${thumbnailResponse.code}
+          collage: $${collageResponse.code}
+    - pictureGarbageCollectionGCS:
+        try:
+          call: http.request
+          args:
+            url: $${"https://storage.googleapis.com/storage/v1/b/thumbnails-" + projectId + "/o/" + file}
+            auth:
+              type: OAuth2
+            method: DELETE
+          result: gcsDeletionResult
+        except:
+          as: e
+          steps:
+              - dummyResultInOutVar:
+                  assign:
+                      - gcsDeletionResult:
+                          code: 200
+                          body: "Workaround for empty body response"
+    - pictureGarbageCollectionFirestore:
+        call: http.request
+        args:
+          url: $${"https://firestore.googleapis.com/v1/projects/" + projectId + "/databases/(default)/documents/pictures/" + file}
+          auth:
+            type: OAuth2
+          method: DELETE
+        result: firestoreDeletionResult
+    - deleteCompleted:
+        return:
+          gcsDeletion: $${gcsDeletionResult}
+          firestoreDeletion: $${firestoreDeletionResult.code}

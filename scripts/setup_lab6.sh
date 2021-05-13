@@ -135,7 +135,7 @@ echo $VISION_DATA_TRANSFORM_URL
 export WORKFLOW_REGION=europe-west4
 export WORKFLOW_NAME=picadaily-workflows
 
-gcloud beta workflows deploy ${WORKFLOW_NAME} --source=../workflows/workflows.yaml --location=${WORKFLOW_REGION}
+gcloud workflows deploy ${WORKFLOW_NAME} --source=../workflows/workflows.yaml --location=${WORKFLOW_REGION}
 
 #################################
 # Workflow triggering Functions #
