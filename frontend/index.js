@@ -83,7 +83,8 @@ app.get('/api/thumbnails/:name', (req, res) => {
 });
 
 app.get('/api/collage', (req, res) => {
-    res.redirect(`https://storage.googleapis.com/${process.env.BUCKET_THUMBNAILS}/collage.png`);
+    // Add timestamp to avoid Cloud Storage caching
+    res.redirect(`https://storage.googleapis.com/${process.env.BUCKET_THUMBNAILS}/collage.png?${Date.now()}`);
 });
 
 const PORT = process.env.PORT || 8080;
