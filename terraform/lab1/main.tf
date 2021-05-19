@@ -38,7 +38,7 @@ variable "gcp_services" {
 }
 
 # Enable services
-resource "google_project_service" "default" {
+resource "google_project_service" "services" {
   for_each = toset(var.gcp_services)
   service  = each.value
   disable_on_destroy = false
@@ -65,6 +65,10 @@ resource "google_app_engine_application" "default" {
   project       = var.project_id
   location_id   = var.region
   database_type = "CLOUD_FIRESTORE"
+
+  depends_on = [
+    google_project_service.services
+  ]
 }
 
 # Create Firestore index
@@ -81,6 +85,10 @@ resource "google_firestore_index" "default" {
     field_path = "created"
     order      = "DESCENDING"
   }
+
+  depends_on = [
+    google_app_engine_application.default
+  ]
 }
 
 # Zip the source code
@@ -121,6 +129,9 @@ resource "google_cloudfunctions_function" "default" {
     event_type = "google.storage.object.finalize"
   }
 
+  depends_on = [
+    google_project_service.services
+  ]
 }
 
 # Make the function public
