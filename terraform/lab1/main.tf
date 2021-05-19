@@ -87,7 +87,10 @@ resource "google_firestore_index" "default" {
   }
 
   depends_on = [
-    google_app_engine_application.default
+    google_project_service.services,
+    # Not depending on App Engine as it's only created
+    # once and subsequent creations will fail
+    #google_app_engine_application.default
   ]
 }
 
