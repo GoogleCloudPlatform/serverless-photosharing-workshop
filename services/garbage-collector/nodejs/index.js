@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC
+// Copyright 2021 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,18 +13,15 @@
 // limitations under the License.
 const express = require('express');
 const bodyParser = require('body-parser');
-const Promise = require("bluebird");
 const {Storage} = require('@google-cloud/storage');
 const storage = new Storage();
 const Firestore = require('@google-cloud/firestore');
 const { HTTP } = require("cloudevents");
-const {toLogEntryData} = require('@google/events/cloud/audit/v1/LogEntryData');
+const {toStorageObjectData} = require('@google/events/cloud/storage/v1/StorageObjectData');
 
 const app = express();
 app.use(bodyParser.json());
 
-const EVENT_TYPE_AUDITLOG = 'google.cloud.audit.log.v1.written';
-const bucketImages = process.env.BUCKET_IMAGES;
 const bucketThumbnails = process.env.BUCKET_THUMBNAILS;
 
 app.post('/', async (req, res) => {
@@ -32,27 +29,10 @@ app.post('/', async (req, res) => {
         const cloudEvent = HTTP.toEvent({ headers: req.headers, body: req.body });
         console.log(cloudEvent);
 
-        if (EVENT_TYPE_AUDITLOG != cloudEvent.type)
-        {
-            console.log(`Event type '${cloudEvent.type}' is not '${EVENT_TYPE_AUDITLOG}', ignoring.`);
-            res.status(200).send();
-            return;
-        }
+        const storageObjectData = toStorageObjectData(cloudEvent.data);
+        console.log(storageObjectData);
 
-        //"protoPayload" : {"resourceName":"projects/_/buckets/events-atamel-images-input/objects/atamel.jpg}";
-        const logEntryData = toLogEntryData(cloudEvent.data);
-        console.log(logEntryData);
-
-        const tokens = logEntryData.protoPayload.resourceName.split('/');
-        const bucket = tokens[3];
-        const objectName = tokens[5];
-
-        if (bucketImages != bucket)
-        {
-            console.log(`Bucket '${bucket}' is not same as '${bucketImages}', ignoring.`);
-            res.status(200).send();
-            return;
-        }
+        const objectName = storageObjectData.name;
 
         // Delete from thumbnails
         try {
@@ -85,7 +65,6 @@ app.post('/', async (req, res) => {
 const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, () => {
-    if (!bucketImages) throw new Error("BUCKET_IMAGES not set");
     if (!bucketThumbnails) throw new Error("BUCKET_THUMBNAILS not set");
     console.log(`Started service on port ${PORT}`);
 });
