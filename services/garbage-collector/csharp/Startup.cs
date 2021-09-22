@@ -14,10 +14,10 @@
 using System;
 using System.Threading.Tasks;
 using CloudNative.CloudEvents;
+using CloudNative.CloudEvents.AspNetCore;
 using Google.Cloud.Firestore;
 using Google.Cloud.Storage.V1;
-using Google.Events;
-using Google.Events.Protobuf.Cloud.Audit.V1;
+using Google.Events.Protobuf.Cloud.Storage.V1;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,7 +28,6 @@ namespace GarbageCollector
 {
     public class Startup
     {
-        private const string EVENT_TYPE_AUDITLOG = "google.cloud.audit.log.v1.written";
         private string _bucketThumbnails;
         private string _projectId;
 
@@ -47,7 +46,6 @@ namespace GarbageCollector
 
             app.UseRouting();
 
-            var bucketImages = GetEnvironmentVariable("BUCKET_IMAGES");
             _bucketThumbnails = GetEnvironmentVariable("BUCKET_THUMBNAILS");
             _projectId = GetEnvironmentVariable("PROJECT_ID");
 
@@ -55,26 +53,13 @@ namespace GarbageCollector
             {
                 endpoints.MapPost("/", async context =>
                 {
-                    var cloudEvent = await context.Request.ReadCloudEventAsync();
+                    var formatter = CloudEventFormatterAttribute.CreateFormatter(typeof(StorageObjectData));
+                    var cloudEvent = await context.Request.ToCloudEventAsync(formatter);
                     logger.LogInformation("Received CloudEvent\n" + GetEventLog(cloudEvent));
 
-                    if (EVENT_TYPE_AUDITLOG != cloudEvent.Type)
-                    {
-                        logger.LogInformation($"Event type '{cloudEvent.Type}' is not {EVENT_TYPE_AUDITLOG}, ignoring.");
-                        return;
-                    }
-
-                    //"protoPayload" : {"resourceName":"projects/_/buckets/events-atamel-images-input/objects/atamel.jpg}";
-                    var logEntryData = CloudEventConverters.ConvertCloudEventData<LogEntryData>(cloudEvent);
-                    var tokens = logEntryData.ProtoPayload.ResourceName.Split('/');
-                    var bucket = tokens[3];
-                    var objectName = tokens[5];
-
-                    if (bucketImages != bucket)
-                    {
-                        logger.LogInformation($"Bucket '{bucket}' is not same as {bucketImages}, ignoring.");
-                        return;
-                    }
+                    var storageObjectData = (StorageObjectData)cloudEvent.Data;
+                    var bucket = storageObjectData.Bucket;
+                    var objectName = storageObjectData.Name;
 
                     await DeleteFromThumbnailsAsync(objectName, logger);
 

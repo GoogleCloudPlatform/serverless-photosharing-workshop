@@ -5,13 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CloudNative.CloudEvents" Version="2.0.0-beta.1" />
-    <PackageReference Include="CloudNative.CloudEvents.AspNetCore" Version="2.0.0-beta.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="Google.Cloud.Storage.V1" Version="3.0.0" />
-    <PackageReference Include="Google.Cloud.Firestore" Version="2.1.0" />
-    <PackageReference Include="Google.Events" Version="1.0.0-beta02" />
-    <PackageReference Include="Google.Events.Protobuf" Version="1.0.0-beta02" />
+    <PackageReference Include="CloudNative.CloudEvents.AspNetCore" Version="2.1.0" />
+    <PackageReference Include="Google.Cloud.Firestore" Version="2.4.0" />
+    <PackageReference Include="Google.Cloud.Storage.V1" Version="3.5.0" />
+     <PackageReference Include="Google.Events.Protobuf" Version="1.0.0" />
   </ItemGroup>
 
 </Project>
