@@ -12,15 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 const express = require('express');
-const bodyParser = require('body-parser');
 const {Storage} = require('@google-cloud/storage');
-const storage = new Storage();
 const Firestore = require('@google-cloud/firestore');
 const { HTTP } = require("cloudevents");
 const {toStorageObjectData} = require('@google/events/cloud/storage/v1/StorageObjectData');
 
 const app = express();
-app.use(bodyParser.json());
+app.use(express.json());
 
 const bucketThumbnails = process.env.BUCKET_THUMBNAILS;
 
@@ -36,7 +34,7 @@ app.post('/', async (req, res) => {
 
         // Delete from thumbnails
         try {
-            await storage.bucket(bucketThumbnails).file(objectName).delete();
+            await new Storage().bucket(bucketThumbnails).file(objectName).delete();
             console.log(`Deleted '${objectName}' from bucket '${bucketThumbnails}'.`);
         }
         catch(err) {
