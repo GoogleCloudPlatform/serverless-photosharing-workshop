@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC
+// Copyright 202 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,11 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 const express = require('express');
-const im = require('imagemagick');
+const imageMagick = require('imagemagick');
 const Promise = require("bluebird");
 const path = require('path');
 const {Storage} = require('@google-cloud/storage');
-const storage = new Storage();
 const Firestore = require('@google-cloud/firestore');
 
 const app = express();
@@ -41,7 +40,7 @@ app.get('/', async (req, res) => {
             });
             console.log(`Picture file names: ${JSON.stringify(thumbnailFiles)}`);
 
-            const thumbBucket = storage.bucket(process.env.BUCKET_THUMBNAILS);
+            const thumbBucket = new Storage().bucket(process.env.BUCKET_THUMBNAILS);
 
             await Promise.all(thumbnailFiles.map(async fileName => {
                 const filePath = path.resolve('/tmp', fileName);
@@ -55,7 +54,7 @@ app.get('/', async (req, res) => {
             const collagePath = path.resolve('/tmp', 'collage.png');
 
             const thumbnailPaths = thumbnailFiles.map(f => path.resolve('/tmp', f));
-            const convert = Promise.promisify(im.convert);
+            const convert = Promise.promisify(imageMagick.convert);
             await convert([
                 '(', ...thumbnailPaths.slice(0, 2), '+append', ')',
                 '(', ...thumbnailPaths.slice(2), '+append', ')',
