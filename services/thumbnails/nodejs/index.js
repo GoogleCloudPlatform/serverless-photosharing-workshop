@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC
+// Copyright 2021 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,16 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 const express = require('express');
-const bodyParser = require('body-parser');
-const im = require('imagemagick');
+const imageMagick = require('imagemagick');
 const Promise = require("bluebird");
 const path = require('path');
 const {Storage} = require('@google-cloud/storage');
-const storage = new Storage();
 const Firestore = require('@google-cloud/firestore');
 
 const app = express();
-app.use(bodyParser.json());
+app.use(express.json());
 
 app.post('/', async (req, res) => {
     try {
@@ -41,6 +39,7 @@ app.post('/', async (req, res) => {
         console.log(`Base 64 decoded file event: ${JSON.stringify(fileEvent)}`);
         console.log(`Received thumbnail request for file ${fileEvent.name} from bucket ${fileEvent.bucket}`);
 
+        const storage = new Storage();
         const bucket = storage.bucket(fileEvent.bucket);
         const thumbBucket = storage.bucket(process.env.BUCKET_THUMBNAILS);
 
@@ -52,7 +51,7 @@ app.post('/', async (req, res) => {
         });
         console.log(`Downloaded picture into ${originalFile}`);
 
-        const resizeCrop = Promise.promisify(im.crop);
+        const resizeCrop = Promise.promisify(imageMagick.crop);
         await resizeCrop({
                 srcPath: originalFile,
                 dstPath: thumbFile,
