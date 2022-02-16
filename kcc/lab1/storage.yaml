@@ -1,0 +1,28 @@
+apiVersion: storage.cnrm.cloud.google.com/v1beta1
+kind: StorageBucket
+metadata:
+  annotations:
+    cnrm.cloud.google.com/force-destroy: "false"
+  name: BUCKET_NAME
+spec:
+  location: BUCKET_LOCATION
+  uniformBucketLevelAccess: true
+---
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMPolicy
+metadata:
+  annotations:
+    cnrm.cloud.google.com/deletion-policy: abandon
+  name: BUCKET_NAME
+spec:
+  resourceRef:
+    apiVersion: storage.cnrm.cloud.google.com/v1beta1
+    kind: StorageBucket
+    name: BUCKET_NAME
+  bindings:
+    - members:
+        - allUsers
+      role: roles/storage.objectViewer
+    - members:
+        - allUsers
+      role: roles/storage.objectViewer

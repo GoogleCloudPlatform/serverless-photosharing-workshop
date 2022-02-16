@@ -1,0 +1,18 @@
+apiVersion: run.cnrm.cloud.google.com/v1beta1
+kind: RunService
+metadata:
+  name: thumbnails
+spec:
+  ingress: "INGRESS_TRAFFIC_ALL"
+  location: "europe-west2"
+  projectRef:
+    external: projects/asm-workshop-498
+  template:
+    containers:
+      - env:
+          - name: "FOO"
+            value: "bar"
+        image: "gcr.io/cloudrun/hello"
+  traffic:
+    - percent: 100
+      type: "TRAFFIC_TARGET_ALLOCATION_TYPE_LATEST"

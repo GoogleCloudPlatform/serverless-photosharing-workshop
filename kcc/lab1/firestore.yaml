@@ -1,0 +1,12 @@
+apiVersion: firestore.cnrm.cloud.google.com/v1beta1
+kind: FirestoreIndex
+metadata:
+  name: firestoreindex-sample
+spec:
+  collection: pictures
+  fields:
+  - fieldPath: thumbnail
+    order: DESCENDING
+  - fieldPath: created
+    order: DESCENDING
+  queryScope: COLLECTION
