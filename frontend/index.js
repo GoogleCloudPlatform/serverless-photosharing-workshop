@@ -35,15 +35,18 @@ app.post('/api/pictures', async (req, res) => {
         console.log("No file uploaded");
         return res.status(400).send('No file was uploaded.');
     }
-    console.log(`Receiving file ${JSON.stringify(req.files.picture)}`);
+    console.log(`Receiving files ${JSON.stringify(req.files.pictures)}`);
 
-    const newPicture = path.resolve('/tmp', req.files.picture.name);
-    await req.files.picture.mv(newPicture);
-    console.log('File moved in temporary directory');
+    const pics = Array.isArray(req.files.pictures) ? req.files.pictures : [req.files.pictures];
 
-    const pictureBucket = storage.bucket(process.env.BUCKET_PICTURES);
-    await pictureBucket.upload(newPicture, { resumable: false });
-    console.log("Uploaded new picture into Cloud Storage");
+    pics.forEach(async (pic) => {
+        console.log('Storing file', pic.name);
+        const newPicture = path.resolve('/tmp', pic.name);
+        await pic.mv(newPicture);
+
+        const pictureBucket = storage.bucket(process.env.BUCKET_PICTURES);
+        await pictureBucket.upload(newPicture, { resumable: false });
+    });
 
     res.redirect('/');
 });
