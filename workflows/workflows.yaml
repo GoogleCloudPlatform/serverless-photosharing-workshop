@@ -128,5 +128,5 @@ main:
         result: firestoreDeletionResult    
     - deleteCompleted:
         return:
-          gcsDeletion: ${gcsDeletionResult}
+          gcsDeletion: ${gcsDeletionResult.code}
           firestoreDeletion: ${firestoreDeletionResult.code}
