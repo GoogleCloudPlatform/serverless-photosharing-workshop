@@ -2,7 +2,6 @@
   "name": "sample-cloud-storage",
   "version": "0.0.1",
   "dependencies": {
-    "@google-cloud/storage": "^1.6.0",
     "@google-cloud/vision": "^1.8.0",
     "@google-cloud/firestore": "^3.4.1"
   }
