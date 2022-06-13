@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 const vision = require('@google-cloud/vision');
-const Storage = require('@google-cloud/storage');
 const Firestore = require('@google-cloud/firestore');
 
 const client = new vision.ImageAnnotatorClient();
