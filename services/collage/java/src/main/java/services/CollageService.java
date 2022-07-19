@@ -29,10 +29,19 @@ import magick.MontageInfo;
 @SpringBootApplication
 @RestController
 public class CollageService {
+
     @RequestMapping("/")
     public void collage() throws Exception {
+    
+    // get current Project ID
+    String projectID = System.getProperty("GOOGLE_CLOUD_PROJECT", "workflows-demo-project"); 
+    String thumbnails = System.getProperty("BUCKET_THUMBNAILS", "thumbnails-workflows-demo-project"); 
+    System.out.println("Project ID = " + projectID);
+    System.out.println("Thumbnails = " + thumbnails);
+
+    // access collection group in Firestore
     Firestore fs = FirestoreOptions.getDefaultInstance().toBuilder()
-        .setProjectId("projet-pic-a-daily")
+        .setProjectId(projectID)
         .setCredentials(GoogleCredentials.getApplicationDefault())
         .build().getService();
     ApiFuture<QuerySnapshot> query = fs.collectionGroup("pictures")
@@ -41,15 +50,17 @@ public class CollageService {
         .limit(4).get();
     List<QueryDocumentSnapshot> documents = query.get().getDocuments();
     Storage storage = StorageOptions.newBuilder()
-        .setProjectId("projet-pic-a-daily")
+        .setProjectId(projectID)
         .setCredentials(GoogleCredentials.getApplicationDefault())
         .build()
         .getService();
+
     // thumbnails downloading
     MagickImage[] imagesInfos = new MagickImage[4];
     for (int pictureIndex = 0 ; pictureIndex < 4 ; pictureIndex++) {
-        Blob pictureBlob = storage.get("thumbnails-projet-pic-a-daily", documents.get(pictureIndex).getId());
+        Blob pictureBlob = storage.get(thumbnails, documents.get(pictureIndex).getId());
         String pictureName = pictureBlob.getName();
+        System.out.println(pictureName);
         pictureBlob.downloadTo(Paths.get("/tmp/" + pictureName));
         ImageInfo imgInfo = new ImageInfo("/tmp/" + pictureName);
         imagesInfos[pictureIndex] = new MagickImage(imgInfo);
@@ -62,7 +73,7 @@ public class CollageService {
     collage.setFileName("/tmp/collage.png");
     collage = collage.montageImages(montageInfo);
     collage.writeImage(imageInfo);
-    BlobId blobId = BlobId.of("thumbnails-projet-pic-a-daily", "collage.png");
+    BlobId blobId = BlobId.of(thumbnails, "collage.png");
     BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("image/png").build();
     storage.create(blobInfo, Files.readAllBytes(Paths.get("/tmp/collage.png")));
  }
