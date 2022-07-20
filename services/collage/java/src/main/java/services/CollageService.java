@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.MetadataConfig;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.FirestoreOptions;
 import com.google.cloud.firestore.Query;
@@ -31,8 +32,7 @@ import magick.MontageInfo;
 @RestController
 public class CollageService {
 
-    @Value("${GOOGLE_CLOUD_PROJECT}")
-    String projectID;
+    String projectID = MetadataConfig.getProjectId();
 
     @Value("${BUCKET_THUMBNAILS}")
     String thumbnails;
