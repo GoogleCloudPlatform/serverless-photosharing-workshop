@@ -1,19 +1,9 @@
 steps:
-  # integration tests app with Maven
-  - name: maven:3-openjdk-17-slim
-    entrypoint: bash
-    args: 
-    - '-c'
-    - |
-      apt-get update && apt-get update && apt-get install -y libmagickwand-dev imagemagick jmagick
-    # dir: ${_APP_NAME}
   - name: maven:3-openjdk-17-slim
     entrypoint: mvn
     args: ["package", "-Dmaven.test.skip=true"]
-    # dir: ${_APP_NAME}
   # Build and tag using commit sha
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '.', '-t', 'gcr.io/$PROJECT_ID/collage-service', '-f', 'Dockerfile']
-    # dir: ${_APP_NAME}    
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/collage-service']    

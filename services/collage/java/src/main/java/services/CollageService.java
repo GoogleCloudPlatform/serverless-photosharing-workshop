@@ -17,6 +17,7 @@ import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,14 +31,18 @@ import magick.MontageInfo;
 @RestController
 public class CollageService {
 
+    @Value("${GOOGLE_CLOUD_PROJECT}")
+    String projectID;
+
+    @Value("${BUCKET_THUMBNAILS}")
+    String thumbnails;
+
     @RequestMapping("/")
     public void collage() throws Exception {
     
     // get current Project ID
-    String projectID = System.getProperty("GOOGLE_CLOUD_PROJECT", "workflows-demo-project"); 
-    String thumbnails = System.getProperty("BUCKET_THUMBNAILS", "thumbnails-workflows-demo-project"); 
     System.out.println("Project ID = " + projectID);
-    System.out.println("Thumbnails = " + thumbnails);
+    System.out.println("Thumbnails Bucket = " + thumbnails);
 
     // access collection group in Firestore
     Firestore fs = FirestoreOptions.getDefaultInstance().toBuilder()
@@ -55,9 +60,13 @@ public class CollageService {
         .build()
         .getService();
 
+    // how items did we get
+    int docSize = documents.size();
+
     // thumbnails downloading
-    MagickImage[] imagesInfos = new MagickImage[4];
-    for (int pictureIndex = 0 ; pictureIndex < 4 ; pictureIndex++) {
+    MagickImage[] imagesInfos = new MagickImage[docSize];
+    System.out.println(String.format("Collage of %d images:", docSize));
+    for (int pictureIndex = 0 ; pictureIndex < docSize ; pictureIndex++) {
         Blob pictureBlob = storage.get(thumbnails, documents.get(pictureIndex).getId());
         String pictureName = pictureBlob.getName();
         System.out.println(pictureName);
