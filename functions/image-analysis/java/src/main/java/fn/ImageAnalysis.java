@@ -18,7 +18,6 @@ package fn;
 import com.google.cloud.functions.*;
 import com.google.cloud.vision.v1.*;
 import com.google.cloud.vision.v1.Feature.Type;
-import com.google.protobuf.ByteString;
 import com.google.cloud.firestore.*;
 import com.google.api.core.ApiFuture;
 

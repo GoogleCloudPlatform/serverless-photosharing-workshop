@@ -1,0 +1,9 @@
+steps:
+  - name: maven:3-openjdk-17-slim
+    entrypoint: mvn
+    args: ["package", "-Dmaven.test.skip=true"]
+  # Build and tag using commit sha
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '.', '-t', 'gcr.io/$PROJECT_ID/collage-service', '-f', 'Dockerfile']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/collage-service']    

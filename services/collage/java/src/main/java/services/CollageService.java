@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.MetadataConfig;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.FirestoreOptions;
 import com.google.cloud.firestore.Query;
@@ -17,6 +18,7 @@ import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,10 +31,22 @@ import magick.MontageInfo;
 @SpringBootApplication
 @RestController
 public class CollageService {
+
+    String projectID = MetadataConfig.getProjectId();
+
+    @Value("${BUCKET_THUMBNAILS}")
+    String thumbnails;
+
     @RequestMapping("/")
     public void collage() throws Exception {
+    
+    // get current Project ID
+    System.out.println("Project ID = " + projectID);
+    System.out.println("Thumbnails Bucket = " + thumbnails);
+
+    // access collection group in Firestore
     Firestore fs = FirestoreOptions.getDefaultInstance().toBuilder()
-        .setProjectId("projet-pic-a-daily")
+        .setProjectId(projectID)
         .setCredentials(GoogleCredentials.getApplicationDefault())
         .build().getService();
     ApiFuture<QuerySnapshot> query = fs.collectionGroup("pictures")
@@ -41,15 +55,21 @@ public class CollageService {
         .limit(4).get();
     List<QueryDocumentSnapshot> documents = query.get().getDocuments();
     Storage storage = StorageOptions.newBuilder()
-        .setProjectId("projet-pic-a-daily")
+        .setProjectId(projectID)
         .setCredentials(GoogleCredentials.getApplicationDefault())
         .build()
         .getService();
+
+    // how items did we get
+    int docSize = documents.size();
+
     // thumbnails downloading
-    MagickImage[] imagesInfos = new MagickImage[4];
-    for (int pictureIndex = 0 ; pictureIndex < 4 ; pictureIndex++) {
-        Blob pictureBlob = storage.get("thumbnails-projet-pic-a-daily", documents.get(pictureIndex).getId());
+    MagickImage[] imagesInfos = new MagickImage[docSize];
+    System.out.println(String.format("Collage of %d images:", docSize));
+    for (int pictureIndex = 0 ; pictureIndex < docSize ; pictureIndex++) {
+        Blob pictureBlob = storage.get(thumbnails, documents.get(pictureIndex).getId());
         String pictureName = pictureBlob.getName();
+        System.out.println(pictureName);
         pictureBlob.downloadTo(Paths.get("/tmp/" + pictureName));
         ImageInfo imgInfo = new ImageInfo("/tmp/" + pictureName);
         imagesInfos[pictureIndex] = new MagickImage(imgInfo);
@@ -62,7 +82,7 @@ public class CollageService {
     collage.setFileName("/tmp/collage.png");
     collage = collage.montageImages(montageInfo);
     collage.writeImage(imageInfo);
-    BlobId blobId = BlobId.of("thumbnails-projet-pic-a-daily", "collage.png");
+    BlobId blobId = BlobId.of(thumbnails, "collage.png");
     BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("image/png").build();
     storage.create(blobInfo, Files.readAllBytes(Paths.get("/tmp/collage.png")));
  }
