@@ -1,45 +1,66 @@
-# Image-analysis - Cloud Run Service using Native Spring w/GraalVM
+# Image-analysis Service - Cloud Run Service using Native Spring w/GraalVM
 
-Build the app JVM app 
+## Build code and publish images
+
+Build the JVM app image:
 ```
 ./mvnw package -Pjvm
 
-Run with:
+Test the app locally:
 java -jar target/image-analysis-0.0.1.jar
 ```
 
-Build the Native Java exeutable 
+Build the Native Java executable: 
 ```
 ./mvnw package -Pnative
 
-Run with:
+Test the executable locally:
 ./target/image-analysis
 ```
 
-Build the Docker image with a JVM app
+Build the Docker image with a JVM app:
 ```
 ./mvnw package -Pjvm-image
 ```
 
-Build the Docker image with a Native Java executable
+Build the Docker image with a Native Java executable:
 ```
 ./mvnw package -Pnative-image
 ```
 
-Check the docker images
+Check the Docker image sizes:
 ```
 docker images | grep analysis
 image-analysis-jvm                  r17   6b44e0357e26   42 years ago    336MB
 image-analysis-native               r17   cfd3bc296c65   42 years ago    72.1MB
 ```
 
-Run the Docker images
+Run the Docker images locally:
 ```
 docker run --rm image-analysis-jvm:r17
 docker run --rm image-analysis-native:r17
 ```
 
-Create the bucket
+Tag and push the images to GCR:
+```
+docker tag image-analysis-jvm:r17 gcr.io/<Your-Project-ID>/image-analysis-jvm:r17
+docker tag image-analysis-native:r17 gcr.io/<Your-Project-ID>/image-analysis-native:r17
+
+docker push gcr.io/<Your-Project-ID>/image-analysis-jvm:r17
+docker push  gcr.io/<Your-Project-ID>/image-analysis-native:r17
+```
+
+## Deploy and run workshop code
+
+Enable the requried APIs:
+```
+gcloud services enable vision.googleapis.com
+gcloud services enable cloudfunctions.googleapis.com
+gcloud services enable cloudbuild.googleapis.com 
+gcloud services enable run.googleapis.com
+```
+
+Create the bucket:
 ```
 # get the Project_ID
 export PROJECT_ID=$(gcloud config list --format 'value(core.project)')
@@ -48,51 +69,59 @@ export PROJECT_ID=$(gcloud config get-value project)
 # get the Project_Number
 export PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format='value(projectNumber)')
 
+# set project env var
 export GOOGLE_CLOUD_PROJECT=$(gcloud config get-value project)
+
+# Create the GCS bucket
 export BUCKET_PICTURES=uploaded-pictures-${GOOGLE_CLOUD_PROJECT}
 gsutil mb -l EU gs://${BUCKET_PICTURES}
 gsutil uniformbucketlevelaccess set on gs://${BUCKET_PICTURES}
 gsutil iam ch allUsers:objectViewer gs://${BUCKET_PICTURES}
 ```
 
+# Create the database
+
+Instructions for configuring cloud Firestore available [here](https://codelabs.developers.google.com/codelabs/cloud-picadaily-lab1?hl=en&continue=https%3A%2F%2Fcodelabs.developers.google.com%2Fserverless-workshop%2F#8)
+
+
 Set config variables
 ```
-gcloud config set project optimize-serverless-apps
+gcloud config set project ${GOOGLE_CLOUD_PROJECT}
 gcloud config set run/region 
 gcloud config set run/platform managed
-gcloud config set eventarc/location us-central1
+gcloud config set eventarc/location europ-west1
 ```
 
 Grant `pubsub.publisher` to Cloud Storage service account
 ```
 SERVICE_ACCOUNT="$(gsutil kms serviceaccount -p optimize-serverless-apps)"
 
-gcloud projects add-iam-policy-binding optimize-serverless-apps \
+gcloud projects add-iam-policy-binding ${GOOGLE_CLOUD_PROJECT} \
     --member="serviceAccount:${SERVICE_ACCOUNT}" \
     --role='roles/pubsub.publisher'
 ```
 
 Tag / upload / deploy
 ```
-docker tag image-analysis-jvm:r17 gcr.io/optimize-serverless-apps/image-analysis-jvm:r17
-docker tag image-analysis-native:r17 gcr.io/optimize-serverless-apps/image-analysis-native:r17
+docker tag image-analysis-jvm:r17 gcr.io/${GOOGLE_CLOUD_PROJECT}/image-analysis-jvm:r17
+docker tag image-analysis-native:r17 gcr.io/${GOOGLE_CLOUD_PROJECT}/image-analysis-native:r17
 
 # check images
 
 image-analysis-native                                    r17     cfd3bc296c65   42 years ago    72.1MB
-gcr.io/optimize-serverless-apps/image-analysis-native    r17     cfd3bc296c65   42 years ago    72.1MB
+gcr.io/<Your-Project-Id>/image-analysis-native    r17     cfd3bc296c65   42 years ago    72.1MB
 image-analysis-jvm                                       r17     6b44e0357e26   42 years ago    336MB
-gcr.io/optimize-serverless-apps/image-analysis-jvm       r17     6b44e0357e26   42 years ago    336MB
+gcr.io/Your-Prroject-Id/image-analysis-jvm       r17     6b44e0357e26   42 years ago    336MB
 
 # deploy to Cloud Run
 
 gcloud run deploy image-analysis-jvm \
-     --image gcr.io/optimize-serverless-apps/image-analysis-jvm:r17 \
+     --image gcr.io/${GOOGLE_CLOUD_PROJECT}/image-analysis-jvm:r17 \
      --region europe-west1 \
      --memory 2Gi --allow-unauthenticated
 
 gcloud run deploy image-analysis-native \
-     --image gcr.io/optimize-serverless-apps/image-analysis-native:r17 \
+     --image gcr.io/${GOOGLE_CLOUD_PROJECT}/image-analysis-native:r17 \
      --region europe-west1 \
      --memory 2Gi --allow-unauthenticated  
 
@@ -112,8 +141,8 @@ gcloud eventarc triggers create image-analysis-jvm-trigger \
      --destination-run-region=europe-west1 \
      --location=eu \
      --event-filters="type=google.cloud.storage.object.v1.finalized" \
-     --event-filters="bucket=uploaded-pictures-optimize-serverless-apps" \
-     --service-account=998109969150-compute@developer.gserviceaccount.com
+     --event-filters="bucket=uploaded-pictures-<Your-Project-Id" \
+     --service-account=${PROJECT_NUMBER}-compute@developer.gserviceaccount.com
 
 gcloud eventarc triggers create image-analysis-native-trigger \
      --destination-run-service=image-analysis-native \
@@ -121,12 +150,12 @@ gcloud eventarc triggers create image-analysis-native-trigger \
      --location=eu \
      --event-filters="type=google.cloud.storage.object.v1.finalized" \
      --event-filters="bucket=uploaded-pictures-optimize-serverless-apps" \
-     --service-account=998109969150-compute@developer.gserviceaccount.com     
+     --service-account=${PROJECT_NUMBER}-compute@developer.gserviceaccount.com     
 ```
 
 Test the trigger
 ```
-gsutil cp GeekHour.jpeg gs://uploaded-pictures-optimize-serverless-apps
+gsutil cp GeekHour.jpeg gs://uploaded-pictures-${GOOGLE_CLOUD_PROJECT}
 
 gcloud logging read "resource.labels.service_name=image-analysis-jvm AND textPayload:GeekHour" --format=json
 ```
