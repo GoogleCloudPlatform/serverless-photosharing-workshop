@@ -9,7 +9,11 @@ In order to build native Java app images and containerized native Java applicati
 
 Run the script 
 ```
-./env/setup.sh
+# Service code available in the folder below
+cd services/image-analysis/java
+
+# Run the script in  Cloudshell - takes aprox 15s 
+time source ./env/setup.sh
 ```
 
 ## Build the service code and publish images to the container registry
