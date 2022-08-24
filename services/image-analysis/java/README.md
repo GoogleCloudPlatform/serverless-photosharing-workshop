@@ -2,7 +2,7 @@
 
 This lab can be executed directly in Cloudshell or your environment of your choice. 
 
-  [![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.svg)](https://shell.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/ddobrin/serverless-photosharing-workshop.git)
+  [![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.svg)](https://shell.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/GoogleCloudPlatform/serverless-photosharing-workshop.git)
 
 ## Setup Java ecosystem
 In order to build native Java app images and containerized native Java applications, please set up GraalVM and the associated Java 17 distributions.
@@ -12,7 +12,7 @@ Run the script
 # Service code available in the folder below
 cd services/image-analysis/java
 
-# Run the script in  Cloudshell - takes aprox 15s 
+# Run the script in  Cloudshell - takes aprox 15-20s 
 time source ./env/setup.sh
 ```
 
