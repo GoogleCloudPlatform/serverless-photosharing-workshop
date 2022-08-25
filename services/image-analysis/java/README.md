@@ -1,12 +1,28 @@
 # Image-analysis Service - Cloud Run Service using Native Spring w/GraalVM
 
-## Build code and publish images
+This lab can be executed directly in Cloudshell or your environment of your choice. 
+
+  [![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.svg)](https://shell.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/GoogleCloudPlatform/serverless-photosharing-workshop.git)
+
+## Setup Java ecosystem
+In order to build native Java app images and containerized native Java applications, please set up GraalVM and the associated Java 17 distributions.
+
+Run the script 
+```
+# Service code available in the folder below
+cd services/image-analysis/java
+
+# Run the script in  Cloudshell - takes aprox 15-20s 
+time source ./env/setup.sh
+```
+
+## Build the service code and publish images to the container registry
 
 Build the JVM app image:
 ```
 ./mvnw package -Pjvm
 
-Test the app locally:
+Start the app locally:
 java -jar target/image-analysis-0.0.1.jar
 ```
 
@@ -18,7 +34,7 @@ Test the executable locally:
 ./target/image-analysis
 ```
 
-Build the Docker image with a JVM app:
+Build the Docker image with a JVM-based version of the service app:
 ```
 ./mvnw package -Pjvm-image
 ```
@@ -35,7 +51,7 @@ image-analysis-jvm                  r17   6b44e0357e26   42 years ago    336MB
 image-analysis-native               r17   cfd3bc296c65   42 years ago    72.1MB
 ```
 
-Run the Docker images locally:
+Start the Docker images locally:
 ```
 docker run --rm image-analysis-jvm:r17
 docker run --rm image-analysis-native:r17
@@ -52,7 +68,7 @@ docker push  gcr.io/<Your-Project-ID>/image-analysis-native:r17
 
 ## Deploy and run workshop code
 
-Enable the requried APIs:
+Enable the required APIs:
 ```
 gcloud services enable vision.googleapis.com
 gcloud services enable cloudfunctions.googleapis.com
@@ -79,7 +95,7 @@ gsutil uniformbucketlevelaccess set on gs://${BUCKET_PICTURES}
 gsutil iam ch allUsers:objectViewer gs://${BUCKET_PICTURES}
 ```
 
-# Create the database
+## Create the database
 
 Instructions for configuring cloud Firestore available [here](https://codelabs.developers.google.com/codelabs/cloud-picadaily-lab1?hl=en&continue=https%3A%2F%2Fcodelabs.developers.google.com%2Fserverless-workshop%2F#8)
 
