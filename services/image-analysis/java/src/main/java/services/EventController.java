@@ -47,7 +47,10 @@ public class EventController {
 
   @RequestMapping(value = "/", method = RequestMethod.POST)
   public ResponseEntity<String> receiveMessage(
-      @RequestBody Map<String, Object> body, @RequestHeader Map<String, String> headers) throws IOException, InterruptedException, ExecutionException {
+    @RequestBody Map<String, Object> body, @RequestHeader Map<String, String> headers) throws IOException, InterruptedException, ExecutionException {
+
+    // Validate the number of available processors
+    logger.info("EventController: Active processors: " + Runtime.getRuntime().availableProcessors()); 
 
     System.out.println("Header elements");
     for (String field : requiredFields) {
