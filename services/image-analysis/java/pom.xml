@@ -15,11 +15,10 @@
 	<description>Spring App for Image Analysis</description>
     <properties>
         <java.version>17</java.version>
-        <build.version>r17</build.version>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.compiler.source>17</maven.compiler.source>        
-        <spring-cloud.version>2022.0.0-RC1</spring-cloud.version>
-        <testcontainers.version>1.17.4</testcontainers.version>
+        <spring-cloud.version>2022.0.0-RC2</spring-cloud.version>
+        <testcontainers.version>1.17.6</testcontainers.version>
     </properties>
     <dependencies>
         <dependency>
@@ -148,7 +147,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <image>
-                        <name>${project.artifactId}-maven:jit</name>            
+                        <name>${project.artifactId}-maven-jit</name>            
                     </image>
                 </configuration>
             </plugin>
@@ -169,7 +168,7 @@
                                 <!-- <buildpack>gcr.io/paketo-buildpacks/bellsoft-liberica:9.9.0-ea</buildpack>
                                 <buildpack>gcr.io/paketo-buildpacks/java-native-image</buildpack> -->                                
                                 </buildpacks>
-                                <name>${project.artifactId}-maven:aot</name>
+                                <name>${project.artifactId}-maven-native</name>
                                 <builder>dashaun/java-native-builder-multiarch:7.37.0</builder>
                                 <env>
                                     <BP_NATIVE_IMAGE>1</BP_NATIVE_IMAGE>

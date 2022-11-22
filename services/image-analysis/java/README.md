@@ -7,7 +7,7 @@ This lab can be executed directly in Cloudshell or your environment of your choi
 ## Setup Java ecosystem
 In order to build native Java app images and containerized native Java applications, please set up GraalVM and the associated Java 17 distributions.
 
-Run the script 
+Run the script to download and install GraalVM 22.3 and Java 17
 ```
 # Service code available in the folder below
 cd services/image-analysis/java
@@ -16,11 +16,16 @@ cd services/image-analysis/java
 time source ./env/setup.sh
 ```
 
+Alternatively, run a one-line installer provided by the GraalVM team
+```
+bash <(curl -sL https://get.graalvm.org/jdk) graalvm-ce-java17-22.3.0
+```
+
 ## Build the service code and publish images to the container registry
 
-Build the JVM app image:
+Build the JIT app image:
 ```
-./mvnw package -Pjvm
+./mvnw package
 
 Start the app locally:
 java -jar target/image-analysis-0.0.1.jar
@@ -28,42 +33,42 @@ java -jar target/image-analysis-0.0.1.jar
 
 Build the Native Java executable: 
 ```
-./mvnw package -Pnative
+./mvnw native:compile -Pnative
 
 Test the executable locally:
 ./target/image-analysis
 ```
 
-Build the Docker image with a JVM-based version of the service app:
+Build the Docker image with the JIT version of the service app:
 ```
-./mvnw package -Pjvm-image
+./mvnw spring-boot:build-image
 ```
 
 Build the Docker image with a Native Java executable:
 ```
-./mvnw package -Pnative-image
+./mvnw spring-boot:build-image -Pnative
 ```
 
 Check the Docker image sizes:
 ```
-docker images | grep analysis
-image-analysis-jvm                  r17   6b44e0357e26   42 years ago    336MB
-image-analysis-native               r17   cfd3bc296c65   42 years ago    72.1MB
+docker images | grep image-analysis
+image-analysis-maven-jit                        latest     6751b98f7ebf   42 years ago    329MB
+image-analysis-maven-native                     latest     3af942985d65   42 years ago    262MB
 ```
 
-Start the Docker images locally:
+Start the Docker images locally. The image naming conventions indicate whether the image was built by Maven|Gradle and contains the JIT|NATIVE version
 ```
-docker run --rm image-analysis-jvm:r17
-docker run --rm image-analysis-native:r17
+docker run --rm image-analysis-maven-jit
+docker run --rm image-analysis-maven-native
 ```
 
 Tag and push the images to GCR:
 ```
-docker tag image-analysis-jvm:r17 gcr.io/<Your-Project-ID>/image-analysis-jvm:r17
-docker tag image-analysis-native:r17 gcr.io/<Your-Project-ID>/image-analysis-native:r17
+docker tag image-analysis-maven-jit gcr.io/<Your-Project-ID>/image-analysis-maven-jit
+docker tag image-analysis-maven-native gcr.io/<Your-Project-ID>/image-analysis-maven-native
 
-docker push gcr.io/<Your-Project-ID>/image-analysis-jvm:r17
-docker push  gcr.io/<Your-Project-ID>/image-analysis-native:r17
+docker push gcr.io/<Your-Project-ID>/image-analysis-maven-jit
+docker push gcr.io/<Your-Project-ID>/image-analysis-maven-native
 ```
 
 ## Deploy and run workshop code
@@ -110,38 +115,27 @@ gcloud config set eventarc/location europ-west1
 
 Grant `pubsub.publisher` to Cloud Storage service account
 ```
-SERVICE_ACCOUNT="$(gsutil kms serviceaccount -p optimize-serverless-apps)"
+SERVICE_ACCOUNT="$(gsutil kms serviceaccount -p ${GOOGLE_CLOUD_PROJECT})"
 
 gcloud projects add-iam-policy-binding ${GOOGLE_CLOUD_PROJECT} \
     --member="serviceAccount:${SERVICE_ACCOUNT}" \
     --role='roles/pubsub.publisher'
 ```
 
-Tag / upload / deploy
+Deploy
 ```
-docker tag image-analysis-jvm:r17 gcr.io/${GOOGLE_CLOUD_PROJECT}/image-analysis-jvm:r17
-docker tag image-analysis-native:r17 gcr.io/${GOOGLE_CLOUD_PROJECT}/image-analysis-native:r17
-
-# check images
-
-image-analysis-native                                    r17     cfd3bc296c65   42 years ago    72.1MB
-gcr.io/<Your-Project-Id>/image-analysis-native    r17     cfd3bc296c65   42 years ago    72.1MB
-image-analysis-jvm                                       r17     6b44e0357e26   42 years ago    336MB
-gcr.io/Your-Prroject-Id/image-analysis-jvm       r17     6b44e0357e26   42 years ago    336MB
-
 # deploy to Cloud Run
-
-gcloud run deploy image-analysis-jvm \
-     --image gcr.io/${GOOGLE_CLOUD_PROJECT}/image-analysis-jvm:r17 \
+gcloud run deploy image-analysis-jit \
+     --image gcr.io/${GOOGLE_CLOUD_PROJECT}/image-analysis-maven-jit \
      --region europe-west1 \
      --memory 2Gi --allow-unauthenticated
 
 gcloud run deploy image-analysis-native \
-     --image gcr.io/${GOOGLE_CLOUD_PROJECT}/image-analysis-native:r17 \
+     --image gcr.io/${GOOGLE_CLOUD_PROJECT}/image-analysis-maven-native \
      --region europe-west1 \
      --memory 2Gi --allow-unauthenticated  
 
-JVM Image deployment:
+JIT Image deployment:
 2022-08-03T20:23:14.534589Z2022-08-03 20:23:14.533 INFO 1 --- [ main] services.ImageAnalysisApplication : Started ImageAnalysisApplication in 3.27 seconds (JVM running for 4.886)
 
 Native Image deployment:
@@ -152,12 +146,12 @@ Set up Eventarc triggers
 ```
 gcloud eventarc triggers list --location=eu
 
-gcloud eventarc triggers create image-analysis-jvm-trigger \
-     --destination-run-service=image-analysis-jvm \
+gcloud eventarc triggers create image-analysis-jit-trigger \
+     --destination-run-service=image-analysis-jit \
      --destination-run-region=europe-west1 \
      --location=eu \
      --event-filters="type=google.cloud.storage.object.v1.finalized" \
-     --event-filters="bucket=uploaded-pictures-<Your-Project-Id" \
+     --event-filters="bucket=uploaded-pictures-<Your-Project-ID>" \
      --service-account=${PROJECT_NUMBER}-compute@developer.gserviceaccount.com
 
 gcloud eventarc triggers create image-analysis-native-trigger \
@@ -165,7 +159,7 @@ gcloud eventarc triggers create image-analysis-native-trigger \
      --destination-run-region=europe-west1 \
      --location=eu \
      --event-filters="type=google.cloud.storage.object.v1.finalized" \
-     --event-filters="bucket=uploaded-pictures-optimize-serverless-apps" \
+     --event-filters="bucket=uploaded-pictures-<Your-Project-ID>" \
      --service-account=${PROJECT_NUMBER}-compute@developer.gserviceaccount.com     
 ```
 
@@ -173,13 +167,13 @@ Test the trigger
 ```
 gsutil cp GeekHour.jpeg gs://uploaded-pictures-${GOOGLE_CLOUD_PROJECT}
 
-gcloud logging read "resource.labels.service_name=image-analysis-jvm AND textPayload:GeekHour" --format=json
+gcloud logging read "resource.labels.service_name=image-analysis-jit AND textPayload:GeekHour" --format=json
 ```
 
 --------------------
 Log capture
 ```
-gcloud logging read "resource.labels.service_name=image-analysis-jvm AND textPayload:GeekHour" --format=json
+gcloud logging read "resource.labels.service_name=image-analysis-jit AND textPayload:GeekHour" --format=json
 
 ...
  {
@@ -191,11 +185,11 @@ gcloud logging read "resource.labels.service_name=image-analysis-jvm AND textPay
     "receiveTimestamp": "2022-08-04T13:45:10.528219041Z",
     "resource": {
       "labels": {
-        "configuration_name": "image-analysis-jvm",
+        "configuration_name": "image-analysis-jit",
         "location": "europe-west1",
         "project_id": "optimize-serverless-apps",
-        "revision_name": "image-analysis-jvm-00001-waf",
-        "service_name": "image-analysis-jvm"
+        "revision_name": "image-analysis-jit-00001-waf",
+        "service_name": "image-analysis-jit"
       },
       "type": "cloud_run_revision"
     },
@@ -211,11 +205,11 @@ gcloud logging read "resource.labels.service_name=image-analysis-jvm AND textPay
     "receiveTimestamp": "2022-08-04T13:45:10.528219041Z",
     "resource": {
       "labels": {
-        "configuration_name": "image-analysis-jvm",
+        "configuration_name": "image-analysis-jit",
         "location": "europe-west1",
         "project_id": "optimize-serverless-apps",
-        "revision_name": "image-analysis-jvm-00001-waf",
-        "service_name": "image-analysis-jvm"
+        "revision_name": "image-analysis-jit-00001-waf",
+        "service_name": "image-analysis-jit"
       },
       "type": "cloud_run_revision"
     },
@@ -252,6 +246,6 @@ Default
 Default
 2022-08-04T13:45:23.095471Z2022-08-04 13:45:23.095 INFO 1 --- [nio-8080-exec-6] services.EventController : Calling the Vision API...
 Info
-2022-08-04T13:45:24.137495ZPOST200723 B1.1 sAPIs-Google; (+https://developers.google.com/webmasters/APIs-Google.html) https://image-analysis-jvm-6hrfwttbsa-ew.a.run.app/?__GCP_CloudEventsMode=GCS_NOTIFICATION
+2022-08-04T13:45:24.137495ZPOST200723 B1.1 sAPIs-Google; (+https://developers.google.com/webmasters/APIs-Google.html) https://image-analysis-jit-6hrfwttbsa-ew.a.run.app/?__GCP_CloudEventsMode=GCS_NOTIFICATION
 ```
 
