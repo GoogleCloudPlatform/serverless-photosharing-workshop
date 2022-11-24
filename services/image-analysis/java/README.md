@@ -62,13 +62,19 @@ docker run --rm image-analysis-maven-jit
 docker run --rm image-analysis-maven-native
 ```
 
+Retrieve the Project ID, as it will be required for the next GCP operations
+```
+export PROJECT_ID=$(gcloud config get-value project)
+echo $PROJECT_ID
+```
+
 Tag and push the images to GCR:
 ```
-docker tag image-analysis-maven-jit gcr.io/<Your-Project-ID>/image-analysis-maven-jit
-docker tag image-analysis-maven-native gcr.io/<Your-Project-ID>/image-analysis-maven-native
+docker tag image-analysis-maven-jit gcr.io/${PROJECT_ID}/image-analysis-maven-jit
+docker tag image-analysis-maven-native gcr.io/${PROJECT_ID}/image-analysis-maven-native
 
-docker push gcr.io/<Your-Project-ID>/image-analysis-maven-jit
-docker push gcr.io/<Your-Project-ID>/image-analysis-maven-native
+docker push gcr.io/${PROJECT_ID}/image-analysis-maven-jit
+docker push gcr.io/${PROJECT_ID}/image-analysis-maven-native
 ```
 
 ## Deploy and run workshop code
@@ -151,7 +157,7 @@ gcloud eventarc triggers create image-analysis-jit-trigger \
      --destination-run-region=europe-west1 \
      --location=eu \
      --event-filters="type=google.cloud.storage.object.v1.finalized" \
-     --event-filters="bucket=uploaded-pictures-<Your-Project-ID>" \
+     --event-filters="bucket=uploaded-pictures-${PROJECT_ID}" \
      --service-account=${PROJECT_NUMBER}-compute@developer.gserviceaccount.com
 
 gcloud eventarc triggers create image-analysis-native-trigger \
@@ -159,7 +165,7 @@ gcloud eventarc triggers create image-analysis-native-trigger \
      --destination-run-region=europe-west1 \
      --location=eu \
      --event-filters="type=google.cloud.storage.object.v1.finalized" \
-     --event-filters="bucket=uploaded-pictures-<Your-Project-ID>" \
+     --event-filters="bucket=uploaded-pictures-${PROJECT_ID}" \
      --service-account=${PROJECT_NUMBER}-compute@developer.gserviceaccount.com     
 ```
 
