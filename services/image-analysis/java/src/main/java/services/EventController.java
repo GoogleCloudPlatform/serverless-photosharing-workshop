@@ -23,9 +23,10 @@ import java.util.concurrent.ExecutionException;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.*;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -41,13 +42,16 @@ import com.google.api.core.ApiFuture;
 
 @RestController
 public class EventController {
-    private static final Logger logger = Logger.getLogger(EventController.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(EventController.class);
     
   private static final List<String> requiredFields = Arrays.asList("ce-id", "ce-source", "ce-type", "ce-specversion");
 
   @RequestMapping(value = "/", method = RequestMethod.POST)
   public ResponseEntity<String> receiveMessage(
-      @RequestBody Map<String, Object> body, @RequestHeader Map<String, String> headers) throws IOException, InterruptedException, ExecutionException {
+    @RequestBody Map<String, Object> body, @RequestHeader Map<String, String> headers) throws IOException, InterruptedException, ExecutionException {
+
+    // Validate the number of available processors
+    logger.info("EventController: Active processors: " + Runtime.getRuntime().availableProcessors()); 
 
     System.out.println("Header elements");
     for (String field : requiredFields) {
