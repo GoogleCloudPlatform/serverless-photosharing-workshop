@@ -21,19 +21,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.*;
 import java.util.stream.Collectors;
+
+import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import services.actuator.StartupCheck;
 
 import com.google.cloud.vision.v1.*;
 import com.google.cloud.vision.v1.Feature.Type;
@@ -45,6 +51,20 @@ public class EventController {
     private static final Logger logger = LoggerFactory.getLogger(EventController.class);
     
   private static final List<String> requiredFields = Arrays.asList("ce-id", "ce-source", "ce-type", "ce-specversion");
+
+  @PostConstruct
+  public void init() {
+    logger.info("ImageAnalysisApplication: EventController Post Construct Initializer " + new SimpleDateFormat("HH:mm:ss.SSS").format(new java.util.Date(System.currentTimeMillis())));
+    logger.info("ImageAnalysisApplication: EventController Post Construct - Enable StartupCheck can be enabled");
+
+    StartupCheck.up();
+  }
+
+  @GetMapping("start")
+  String start(){
+    logger.info("ImageAnalysisApplication: EventController - Executed start endpoint request " + new SimpleDateFormat("HH:mm:ss.SSS").format(new java.util.Date(System.currentTimeMillis())));
+    return "EventController started";
+  }
 
   @RequestMapping(value = "/", method = RequestMethod.POST)
   public ResponseEntity<String> receiveMessage(

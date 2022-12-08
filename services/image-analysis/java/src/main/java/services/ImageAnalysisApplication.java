@@ -18,18 +18,22 @@ package services;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import java.text.SimpleDateFormat;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @SpringBootApplication
 public class ImageAnalysisApplication {
-	// private static final Log logger = LogFactory.getLog(ImageAnalysisApplication.class);
 	private static final Logger logger = LoggerFactory.getLogger(ImageAnalysisApplication.class);
 
 	public static void main(String[] args) {
 		logger.info("ImageAnalysisApplication: Active processors: " + Runtime.getRuntime().availableProcessors()); 
+		logger.info("ImageAnalysisApplication app started : " + 
+			new SimpleDateFormat("HH:mm:ss.SSS").format(new java.util.Date(System.currentTimeMillis())));
 
 		SpringApplication.run(ImageAnalysisApplication.class, args);
+		logger.info("ImageAnalysisApplication app  - Spring Boot FW started: " + 
+			new SimpleDateFormat("HH:mm:ss.SSS").format(new java.util.Date(System.currentTimeMillis())));
 	}
-
 }

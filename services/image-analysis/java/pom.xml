@@ -30,6 +30,11 @@
 			<artifactId>spring-cloud-function-web</artifactId>
 		</dependency>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.google.cloud.functions</groupId>
             <artifactId>functions-framework-api</artifactId>
             <version>1.0.4</version>
@@ -169,7 +174,7 @@
                                 <buildpack>gcr.io/paketo-buildpacks/java-native-image</buildpack> -->                                
                                 </buildpacks>
                                 <name>${project.artifactId}-maven-native</name>
-                                <builder>dashaun/java-native-builder-multiarch:7.37.0</builder>
+                                <builder>dashaun/java-native-builder-multiarch:7.41.0</builder>
                                 <env>
                                     <BP_NATIVE_IMAGE>1</BP_NATIVE_IMAGE>
                                     <BP_JVM_VERSION>17</BP_JVM_VERSION>
