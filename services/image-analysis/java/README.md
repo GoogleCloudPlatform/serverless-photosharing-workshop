@@ -20,6 +20,13 @@ Alternatively, run a one-line installer provided by the GraalVM team
 ```
 bash <(curl -sL https://get.graalvm.org/jdk) graalvm-ce-java17-22.3.0
 ```
+## Install the maven wrapper
+The Maven Wrapper is an easy way to ensure a user of your Maven build has everything necessary to run your Maven build.
+
+Run the command:
+```
+mvn wrapper:wrapper
+```
 
 ## Build the service code and publish images to the container registry
 
