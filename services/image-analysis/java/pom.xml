@@ -55,68 +55,6 @@
 		<dependency>
 			<groupId>com.google.api</groupId>
 			<artifactId>gax-grpc</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.google.api</groupId>
-                    <artifactId>api-common</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.google.api</groupId>
-                    <artifactId>api-common</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.google.api.grpc</groupId>
-                    <artifactId>proto-google-common-protos</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.google.auth</groupId>
-                    <artifactId>google-auth-library-credentials</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.google.guava</groupId>
-                    <artifactId>guava</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.grpc</groupId>
-                    <artifactId>grpc-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.threeten</groupId>
-                    <artifactId>threetenbp</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.google.auth</groupId>
-                    <artifactId>google-auth-library-oauth2-http</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.grpc</groupId>
-                    <artifactId>grpc-alts</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.grpc</groupId>
-                    <artifactId>grpc-auth</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.grpc</groupId>
-                    <artifactId>grpc-protobuf</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.grpc</groupId>
-                    <artifactId>grpc-stub</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.grpc</groupId>
-                    <artifactId>grpc-netty-shaded</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.grpc</groupId>
-                    <artifactId>grpc-googleapis</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.google.code.findbugs</groupId>
-                    <artifactId>jsr305</artifactId>
-                </exclusion>
-            </exclusions>
 		</dependency>
         <dependency>
             <groupId>com.rometools</groupId>
@@ -177,12 +115,10 @@
                         <artifactId>spring-boot-maven-plugin</artifactId>
                         <configuration>
                             <image>
-                                <buildpacks>
-                                <!-- <buildpack>gcr.io/paketo-buildpacks/bellsoft-liberica:9.9.0-ea</buildpack>
-                                <buildpack>gcr.io/paketo-buildpacks/java-native-image</buildpack> -->                                
-                                </buildpacks>
+<!--                                <buildpacks>-->
+<!--                                    <buildpack>gcr.io/paketo-buildpacks/java-native-image</buildpack> &ndash;&gt;-->
+<!--                                </buildpacks>-->
                                 <name>${project.artifactId}-maven-native</name>
-                                <!-- <builder>dashaun/java-native-builder-multiarch:7.41.0</builder> -->
                                 <builder>dashaun/builder:tiny</builder>
 
                                 <env>
