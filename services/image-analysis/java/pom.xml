@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.0.1</version>
+        <version>3.0.2</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>services</groupId>
@@ -17,7 +17,7 @@
         <java.version>17</java.version>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.compiler.source>17</maven.compiler.source>        
-        <spring-cloud.version>2022.0.0</spring-cloud.version>
+        <spring-cloud.version>2022.0.1</spring-cloud.version>
         <testcontainers.version>1.17.6</testcontainers.version>
     </properties>
     <dependencies>
@@ -56,18 +56,6 @@
 			<groupId>com.google.api</groupId>
 			<artifactId>gax-grpc</artifactId>
 		</dependency>
-        <dependency>
-            <groupId>com.rometools</groupId>
-            <artifactId>rome</artifactId>
-            <version>1.18.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlinx</groupId>
-            <artifactId>kotlinx-serialization-core</artifactId>
-            <version>1.4.1</version>
-            <type>pom</type>
-            <scope>runtime</scope>
-        </dependency>        
 
         <!-- Test -->
         <dependency>
@@ -88,11 +76,19 @@
             <plugin>
                 <groupId>org.graalvm.buildtools</groupId>
                 <artifactId>native-maven-plugin</artifactId>
+                <configuration>
+                    <buildArgs>
+                        <arg>-H:+RunReachabilityHandlersConcurrently</arg>
+                    </buildArgs>                
+                </configuration>
             </plugin>        
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
+                    <jvmArguments>
+                        -agentlib:native-image-agent=config-output-dir=target/native-im./taage
+                    </jvmArguments>
                     <image>
                         <name>${project.artifactId}-maven-jit</name>            
                     </image>
@@ -114,6 +110,9 @@
                         <groupId>org.springframework.boot</groupId>
                         <artifactId>spring-boot-maven-plugin</artifactId>
                         <configuration>
+                            <jvmArguments>
+                                -agentlib:native-image-agent=config-output-dir=target/native-image
+                            </jvmArguments>                        
                             <image>
 <!--                                <buildpacks>-->
 <!--                                    <buildpack>gcr.io/paketo-buildpacks/java-native-image</buildpack> &ndash;&gt;-->
@@ -209,7 +208,7 @@
             <dependency>
                 <groupId>com.google.cloud</groupId>
                 <artifactId>libraries-bom</artifactId>
-                <version>26.3.0</version>
+                <version>26.7.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
