@@ -7,7 +7,7 @@ This lab can be executed directly in Cloudshell or your environment of your choi
 ## Setup Java ecosystem
 In order to build native Java app images and containerized native Java applications, please set up GraalVM and the associated Java 17 distributions.
 
-Run the script to download and install GraalVM 22.3 and Java 17
+Run the script to download and install GraalVM 22.3.1 and Java 17
 ```
 # Service code available in the folder below
 cd services/image-analysis/java
@@ -18,7 +18,7 @@ time source ./env/setup.sh
 
 Alternatively, run a one-line installer provided by the GraalVM team
 ```
-bash <(curl -sL https://get.graalvm.org/jdk) graalvm-ce-java17-22.3.0
+bash <(curl -sL https://get.graalvm.org/jdk) graalvm-ce-java17-22.3.1
 ```
 ## Install the maven wrapper
 The Maven Wrapper is an easy way to ensure a user of your Maven build has everything necessary to run your Maven build.
