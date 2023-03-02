@@ -114,17 +114,12 @@
                                 -agentlib:native-image-agent=config-output-dir=target/native-image
                             </jvmArguments>                        
                             <image>
-<!--                                <buildpacks>-->
-<!--                                    <buildpack>gcr.io/paketo-buildpacks/java-native-image</buildpack> &ndash;&gt;-->
-<!--                                </buildpacks>-->
                                 <name>${project.artifactId}-maven-native</name>
                                 <builder>dashaun/builder:tiny</builder>
 
                                 <env>
                                     <BP_NATIVE_IMAGE>1</BP_NATIVE_IMAGE>
                                     <BP_JVM_VERSION>17</BP_JVM_VERSION>
-                                    <!-- use only if image size is more important than start-up speed -->
-                                    <!-- <BP_BINARY_COMPRESSION_METHOD>upx</BP_BINARY_COMPRESSION_METHOD> -->
                                 </env>                
                             </image>
                         </configuration>
@@ -208,7 +203,7 @@
             <dependency>
                 <groupId>com.google.cloud</groupId>
                 <artifactId>libraries-bom</artifactId>
-                <version>26.7.0</version>
+                <version>26.9.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

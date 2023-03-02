@@ -104,10 +104,10 @@ export PROJECT_ID=$(gcloud config get-value project)
 export PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format='value(projectNumber)')
 
 # set project env var
-export GOOGLE_CLOUD_PROJECT=$(gcloud config get-value project)
+export PROJECT_ID=$(gcloud config get-value project)
 
 # Create the GCS bucket
-export BUCKET_PICTURES=uploaded-pictures-${GOOGLE_CLOUD_PROJECT}
+export BUCKET_PICTURES=uploaded-pictures-${PROJECT_ID}
 gsutil mb -l EU gs://${BUCKET_PICTURES}
 gsutil uniformbucketlevelaccess set on gs://${BUCKET_PICTURES}
 gsutil iam ch allUsers:objectViewer gs://${BUCKET_PICTURES}
@@ -120,7 +120,7 @@ Instructions for configuring cloud Firestore available [here](https://codelabs.d
 
 Set config variables
 ```
-gcloud config set project ${GOOGLE_CLOUD_PROJECT}
+gcloud config set project ${PROJECT_ID}
 gcloud config set run/region 
 gcloud config set run/platform managed
 gcloud config set eventarc/location europ-west1
@@ -128,9 +128,9 @@ gcloud config set eventarc/location europ-west1
 
 Grant `pubsub.publisher` to Cloud Storage service account
 ```
-SERVICE_ACCOUNT="$(gsutil kms serviceaccount -p ${GOOGLE_CLOUD_PROJECT})"
+SERVICE_ACCOUNT="$(gsutil kms serviceaccount -p ${PROJECT_ID})"
 
-gcloud projects add-iam-policy-binding ${GOOGLE_CLOUD_PROJECT} \
+gcloud projects add-iam-policy-binding ${PROJECT_ID} \
     --member="serviceAccount:${SERVICE_ACCOUNT}" \
     --role='roles/pubsub.publisher'
 ```
@@ -139,14 +139,22 @@ Deploy
 ```
 # deploy to Cloud Run
 gcloud run deploy image-analysis-jit \
-     --image gcr.io/${GOOGLE_CLOUD_PROJECT}/image-analysis-maven-jit \
+     --image gcr.io/${PROJECT_ID}/image-analysis-maven-jit \
      --region europe-west1 \
      --memory 2Gi --allow-unauthenticated
 
 gcloud run deploy image-analysis-native \
-     --image gcr.io/${GOOGLE_CLOUD_PROJECT}/image-analysis-maven-native \
+     --image gcr.io/${PROJECT_ID}/image-analysis-maven-native \
      --region europe-west1 \
      --memory 2Gi --allow-unauthenticated  
+
+# JIT image
+docker tag image-analysis-maven-jit gcr.io/${GOOGLE_CLOUD_PROJECT}/image-analysis-maven-jit
+docker push gcr.io/${GOOGLE_CLOUD_PROJECT}/image-analysis-maven-jit
+
+# Native(AOT) image
+docker tag image-analysis-maven-native gcr.io/${GOOGLE_CLOUD_PROJECT}/image-analysis-maven-native
+docker push  gcr.io/${GOOGLE_CLOUD_PROJECT}/image-analysis-maven-native     
 
 JIT Image deployment:
 2022-08-03T20:23:14.534589Z2022-08-03 20:23:14.533 INFO 1 --- [ main] services.ImageAnalysisApplication : Started ImageAnalysisApplication in 3.27 seconds (JVM running for 4.886)
@@ -178,7 +186,7 @@ gcloud eventarc triggers create image-analysis-native-trigger \
 
 Test the trigger
 ```
-gsutil cp GeekHour.jpeg gs://uploaded-pictures-${GOOGLE_CLOUD_PROJECT}
+gsutil cp GeekHour.jpeg gs://uploaded-pictures-${PROJECT_ID}
 
 gcloud logging read "resource.labels.service_name=image-analysis-jit AND textPayload:GeekHour" --format=json
 ```
