@@ -10,16 +10,26 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class EventService {
 
-  public ApiFuture<WriteResult> storeImage(String fileName, List<String> labels, String mainColor) {
-    FirestoreOptions firestoreOptions = FirestoreOptions.getDefaultInstance();
-    Firestore pictureStore = firestoreOptions.getService();
+  private final FirestoreOptions firestoreOptions;
+  private final Firestore firestore;
 
-    DocumentReference doc = pictureStore.collection("pictures").document(fileName);
+  public EventService() {
+    this.firestoreOptions = FirestoreOptions.getDefaultInstance();
+    this.firestore = firestoreOptions.getService();
+  }
+  public EventService(FirestoreOptions firestoreOptions, Firestore firestore) {
+    this.firestoreOptions = firestoreOptions;
+    this.firestore = firestore;
+  }
+
+  public ApiFuture<WriteResult> storeImage(String fileName, List<String> labels, String mainColor) {
+    DocumentReference doc = firestore.collection("pictures").document(fileName);
 
     Map<String, Object> data = new HashMap<>();
     data.put("labels", labels);
