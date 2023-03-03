@@ -12,9 +12,11 @@ import com.google.cloud.firestore.FirestoreOptions;
 import com.google.cloud.firestore.WriteResult;
 import java.util.Collections;
 import java.util.concurrent.ExecutionException;
+import javax.annotation.PostConstruct;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -22,6 +24,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.FirestoreEmulatorContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -31,8 +34,7 @@ import org.testcontainers.utility.DockerImageName;
 @Testcontainers
 @ActiveProfiles("test")
 public class ImageAnalysisApplicationContainerTests {
-
-  @BeforeClass
+  @PostConstruct
   public void setup() {
     FirestoreOptions options = FirestoreOptions.getDefaultInstance().toBuilder()
         .setHost(firestoreEmulator.getEmulatorEndpoint())
@@ -55,7 +57,7 @@ public class ImageAnalysisApplicationContainerTests {
     registry.add("spring.cloud.gcp.firestore.host-port", firestoreEmulator::getEmulatorEndpoint);
   }
 
-  @Autowired
+  // @Autowired
   private EventService eventService;
 
   @Test
@@ -63,6 +65,5 @@ public class ImageAnalysisApplicationContainerTests {
     ApiFuture<WriteResult> writeResult = eventService.storeImage("testImage",
         Collections.singletonList("label"), "#FFFFFF");
     assertNotNull(writeResult.get().getUpdateTime());
-    //make this blocking, assert that it writes and deletes
   }
 }
