@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.*;
 import java.util.stream.*;
 import java.util.stream.Collectors;
 
@@ -30,6 +29,7 @@ import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,6 +51,9 @@ public class EventController {
     private static final Logger logger = LoggerFactory.getLogger(EventController.class);
     
   private static final List<String> requiredFields = Arrays.asList("ce-id", "ce-source", "ce-type", "ce-specversion");
+
+  @Autowired
+  private EventService eventService;
 
   @PostConstruct
   public void init() {
@@ -187,19 +190,9 @@ public class EventController {
 
         // Saving result to Firestore
         if (isSafe) {
-            FirestoreOptions firestoreOptions = FirestoreOptions.getDefaultInstance();
-            Firestore pictureStore = firestoreOptions.getService();
-
-            DocumentReference doc = pictureStore.collection("pictures").document(fileName);
-
-            Map<String, Object> data = new HashMap<>();
-            data.put("labels", labels);
-            data.put("color", mainColor);
-            data.put("created", new Date());
-
-            ApiFuture<WriteResult> writeResult = doc.set(data, SetOptions.merge());
-
-            logger.info("Picture metadata saved in Firestore at " + writeResult.get().getUpdateTime());
+          ApiFuture<WriteResult> writeResult = eventService.storeImage(fileName, labels,
+              mainColor);
+          logger.info("Picture metadata saved in Firestore at " + writeResult.get().getUpdateTime());
         }
     }
 

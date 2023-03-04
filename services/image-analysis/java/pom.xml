@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.0.2</version>
+        <version>3.0.3</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>services</groupId>
@@ -21,6 +21,11 @@
         <testcontainers.version>1.17.6</testcontainers.version>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>gcloud</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -114,17 +119,12 @@
                                 -agentlib:native-image-agent=config-output-dir=target/native-image
                             </jvmArguments>                        
                             <image>
-<!--                                <buildpacks>-->
-<!--                                    <buildpack>gcr.io/paketo-buildpacks/java-native-image</buildpack> &ndash;&gt;-->
-<!--                                </buildpacks>-->
                                 <name>${project.artifactId}-maven-native</name>
                                 <builder>dashaun/builder:tiny</builder>
 
                                 <env>
                                     <BP_NATIVE_IMAGE>1</BP_NATIVE_IMAGE>
                                     <BP_JVM_VERSION>17</BP_JVM_VERSION>
-                                    <!-- use only if image size is more important than start-up speed -->
-                                    <!-- <BP_BINARY_COMPRESSION_METHOD>upx</BP_BINARY_COMPRESSION_METHOD> -->
                                 </env>                
                             </image>
                         </configuration>
@@ -204,11 +204,11 @@
                 <version>${testcontainers.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>            
+            </dependency>
             <dependency>
                 <groupId>com.google.cloud</groupId>
                 <artifactId>libraries-bom</artifactId>
-                <version>26.7.0</version>
+                <version>26.9.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
