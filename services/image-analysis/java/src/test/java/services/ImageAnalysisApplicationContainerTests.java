@@ -15,6 +15,8 @@ import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +62,7 @@ public class ImageAnalysisApplicationContainerTests {
   // @Autowired
   private EventService eventService;
 
+  @Disabled("Until Spring Boot 3.1 is released")
   @Test
   void testEventRepositoryStoreImage() throws ExecutionException, InterruptedException {
     ApiFuture<WriteResult> writeResult = eventService.storeImage("testImage",
