@@ -58,7 +58,7 @@ public class EventController {
   @PostConstruct
   public void init() {
     logger.info("ImageAnalysisApplication: EventController Post Construct Initializer " + new SimpleDateFormat("HH:mm:ss.SSS").format(new java.util.Date(System.currentTimeMillis())));
-    logger.info("ImageAnalysisApplication: EventController Post Construct - Enable StartupCheck can be enabled");
+    logger.info("ImageAnalysisApplication: EventController Post Construct - StartupCheck can be enabled");
 
     StartupCheck.up();
   }
