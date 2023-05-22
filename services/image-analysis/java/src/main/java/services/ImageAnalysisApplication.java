@@ -23,6 +23,8 @@ import java.text.SimpleDateFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PreDestroy;
+
 @SpringBootApplication
 public class ImageAnalysisApplication {
 	private static final Logger logger = LoggerFactory.getLogger(ImageAnalysisApplication.class);
@@ -36,4 +38,9 @@ public class ImageAnalysisApplication {
 		logger.info("ImageAnalysisApplication app  - Spring Boot FW started: " + 
 			new SimpleDateFormat("HH:mm:ss.SSS").format(new java.util.Date(System.currentTimeMillis())));
 	}
+
+	@PreDestroy
+	public void shutDown(){
+		logger.info(ImageAnalysisApplication.class.getSimpleName() + ": received SIGTERM ==> Shutting down resources !");
+	}	
 }
