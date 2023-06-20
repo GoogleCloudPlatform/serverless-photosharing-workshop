@@ -52,7 +52,7 @@ public class ImageAnalysisApplicationContainerTests {
   private static final FirestoreEmulatorContainer firestoreEmulator =
       new FirestoreEmulatorContainer(
           DockerImageName.parse(
-              "gcr.io/google.com/cloudsdktool/cloud-sdk:420.0.0-emulators"));
+              "gcr.io/google.com/cloudsdktool/cloud-sdk:435.0.1-emulators"));
 
   @DynamicPropertySource
   static void emulatorProperties(DynamicPropertyRegistry registry) {
