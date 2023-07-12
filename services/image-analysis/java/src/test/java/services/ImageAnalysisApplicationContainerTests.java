@@ -52,7 +52,7 @@ public class ImageAnalysisApplicationContainerTests {
   private static final FirestoreEmulatorContainer firestoreEmulator =
       new FirestoreEmulatorContainer(
           DockerImageName.parse(
-              "gcr.io/google.com/cloudsdktool/cloud-sdk:435.0.1-emulators"));
+              "gcr.io/google.com/cloudsdktool/cloud-sdk:438.0.0-emulators"));
 
   @DynamicPropertySource
   static void emulatorProperties(DynamicPropertyRegistry registry) {
@@ -62,7 +62,7 @@ public class ImageAnalysisApplicationContainerTests {
   // @Autowired
   private EventService eventService;
 
-  @Disabled("Until Spring Boot 3.1 is released")
+  // @Disabled("Until Spring Boot 3.1 is released")
   @Test
   void testEventRepositoryStoreImage() throws ExecutionException, InterruptedException {
     ApiFuture<WriteResult> writeResult = eventService.storeImage("testImage",

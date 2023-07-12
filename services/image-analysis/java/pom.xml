@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.1.0</version>
+        <version>3.1.1</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>services</groupId>
@@ -17,7 +17,7 @@
         <java.version>17</java.version>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.compiler.source>17</maven.compiler.source>        
-        <spring-cloud.version>2022.0.2</spring-cloud.version>
+        <spring-cloud.version>2022.0.3</spring-cloud.version>
         <testcontainers.version>1.18.3</testcontainers.version>
     </properties>
     <dependencies>
@@ -42,7 +42,7 @@
         <dependency>
             <groupId>com.google.cloud.functions</groupId>
             <artifactId>functions-framework-api</artifactId>
-            <version>1.0.4</version>
+            <version>1.1.0</version>
             <type>jar</type>
         </dependency>
         <dependency>
@@ -206,7 +206,7 @@
             <dependency>
                 <groupId>com.google.cloud</groupId>
                 <artifactId>libraries-bom</artifactId>
-                <version>26.15.0</version>
+                <version>26.18.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
