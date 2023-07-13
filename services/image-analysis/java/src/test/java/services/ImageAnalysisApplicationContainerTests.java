@@ -16,6 +16,7 @@ import javax.annotation.PostConstruct;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -34,9 +35,9 @@ import org.testcontainers.utility.DockerImageName;
 
 @SpringBootTest
 @Testcontainers
-@ActiveProfiles("test")
+// @ActiveProfiles("test")
 public class ImageAnalysisApplicationContainerTests {
-  @PostConstruct
+  @BeforeEach
   public void setup() {
     FirestoreOptions options = FirestoreOptions.getDefaultInstance().toBuilder()
         .setHost(firestoreEmulator.getEmulatorEndpoint())
