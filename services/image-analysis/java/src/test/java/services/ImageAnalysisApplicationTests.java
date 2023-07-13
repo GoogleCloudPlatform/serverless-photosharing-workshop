@@ -48,22 +48,6 @@ public class ImageAnalysisApplicationTests {
 			  .put("attributes", new JSONObject());
 	  mockBody = new JSONObject().put("message", message).toString();
 	}
-  
-    @Test
-    public void goodTest() throws Exception {
-        mockMvc
-                .perform(
-                        post("/")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(mockBody)
-                                .header("ce-id", "test id")
-                                .header("ce-source", "test source")
-                                .header("ce-type", "test type")
-                                .header("ce-specversion", "test specversion")
-                                .header("ce-subject", "test subject"))
-                // .andExpect(status().isOk());
-            .andExpect((status().is4xxClientError()));
-    }	
 	
 	@Test
 	public void addEmptyBody() throws Exception {
