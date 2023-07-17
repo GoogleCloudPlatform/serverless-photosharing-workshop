@@ -1,25 +1,21 @@
 # Image-analysis Service - Cloud Run Service using Native Spring w/GraalVM
 
-This lab can be executed directly in Cloudshell or your environment of your choice. 
+This lab can be executed directly in a Cloud Workstation, Cloudshell or your environment of choice. 
 
   [![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.svg)](https://shell.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/GoogleCloudPlatform/serverless-photosharing-workshop.git)
 
 ## Setup Java ecosystem
 In order to build native Java app images and containerized native Java applications, please set up GraalVM and the associated Java 17 distributions.
 
-Run the script to download and install GraalVM 22.3.1 and Java 17
+Run the script to download and install GraalVM for Java 17 (latest LTS)
 ```
 # Service code available in the folder below
 cd services/image-analysis/java
 
-# Run the script in  Cloudshell - takes aprox 15-20s 
+# Run the script in a Cloud Workstation or Cloudshell - takes aprox 15-20s 
 time source ./env/setup.sh
 ```
 
-Alternatively, run a one-line installer provided by the GraalVM team
-```
-bash <(curl -sL https://get.graalvm.org/jdk) graalvm-ce-java17-22.3.1
-```
 ## Install the maven wrapper
 The Maven Wrapper is an easy way to ensure a user of your Maven build has everything necessary to run your Maven build.
 
