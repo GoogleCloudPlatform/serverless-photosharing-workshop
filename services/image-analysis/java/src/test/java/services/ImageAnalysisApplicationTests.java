@@ -15,34 +15,30 @@
  */
 package services;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.junit.Before;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(webEnvironment = WebEnvironment.MOCK)
+@Testcontainers
 @AutoConfigureMockMvc
 public class ImageAnalysisApplicationTests {
-
-	@Test
-	public void contextLoads() {
-	}
 
 	@Autowired private MockMvc mockMvc;
 	String mockBody;
   
-	@Before
+	@BeforeEach
 	public void setup() throws JSONException {
 	  JSONObject message =
 		  new JSONObject()
@@ -52,7 +48,7 @@ public class ImageAnalysisApplicationTests {
 			  .put("attributes", new JSONObject());
 	  mockBody = new JSONObject().put("message", message).toString();
 	}
-  
+	
 	@Test
 	public void addEmptyBody() throws Exception {
 	  mockMvc.perform(post("/")).andExpect(status().isBadRequest());
