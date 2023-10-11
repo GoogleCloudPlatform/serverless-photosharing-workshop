@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.1.1</version>
+        <version>3.2.0-M3</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>services</groupId>
@@ -17,8 +17,8 @@
         <java.version>17</java.version>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.compiler.source>17</maven.compiler.source>        
-        <spring-cloud.version>2022.0.3</spring-cloud.version>
-        <testcontainers.version>1.18.3</testcontainers.version>
+        <spring-cloud.version>2023.0.0-M2</spring-cloud.version>
+        <testcontainers.version>1.19.1</testcontainers.version>
     </properties>
     <dependencies>
         <dependency>
@@ -76,33 +76,25 @@
         </dependency>        
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.graalvm.buildtools</groupId>
-                <artifactId>native-maven-plugin</artifactId>
-                <configuration>
-                    <buildArgs>
-                        <arg>-H:+RunReachabilityHandlersConcurrently</arg>
-                    </buildArgs>                
-                </configuration>
-            </plugin>        
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <jvmArguments>
-                        -agentlib:native-image-agent=config-output-dir=target/native-image
-                    </jvmArguments>
-                    <image>
-                        <name>${project.artifactId}-maven-jit</name>            
-                    </image>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+
 
 	<profiles>
+        <profile>
+            <id>jit</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <configuration>
+                            <image>
+                                <name>${project.artifactId}-maven-jit</name>            
+                            </image>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
 		<profile>
 			<id>native</id>
             <build>
@@ -206,7 +198,7 @@
             <dependency>
                 <groupId>com.google.cloud</groupId>
                 <artifactId>libraries-bom</artifactId>
-                <version>26.18.0</version>
+                <version>26.24.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
