@@ -32,14 +32,14 @@ export BUCKET_PICTURES=uploaded-pictures-${GOOGLE_CLOUD_PROJECT}
 export BUCKET_THUMBNAILS=thumbnails-${GOOGLE_CLOUD_PROJECT}
 
 # Create a public EU multi-region bucket with uniform access
-gsutil mb -l EU gs://${BUCKET_PICTURES}
-gsutil uniformbucketlevelaccess set on gs://${BUCKET_PICTURES}
-gsutil iam ch allUsers:objectViewer gs://${BUCKET_PICTURES}
+gcloud storage buckets create gs://${BUCKET_PICTURES} --location=EU
+gcloud storage buckets update gs://${BUCKET_PICTURES} --uniform-bucket-level-access
+gcloud storage buckets add-iam-policy-binding gs://${BUCKET_PICTURES} --member=allUsers --role=roles/storage.objectViewer
 
 # Create a public EU multi-region bucket with uniform access
-gsutil mb -l EU gs://${BUCKET_THUMBNAILS}
-gsutil uniformbucketlevelaccess set on gs://${BUCKET_THUMBNAILS}
-gsutil iam ch allUsers:objectViewer gs://${BUCKET_THUMBNAILS}
+gcloud storage buckets create gs://${BUCKET_THUMBNAILS} --location=EU
+gcloud storage buckets update gs://${BUCKET_THUMBNAILS} --uniform-bucket-level-access
+gcloud storage buckets add-iam-policy-binding gs://${BUCKET_THUMBNAILS} --member=allUsers --role=roles/storage.objectViewer
 
 ###################
 # Setup Firestore #
