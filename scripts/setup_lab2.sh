@@ -24,9 +24,9 @@ gcloud services enable run.googleapis.com
 
 # Create a public multi-region bucket with uniform level access
 export BUCKET_NAME=${SERVICE_SRC}-${GOOGLE_CLOUD_PROJECT}
-gsutil mb -l EU gs://${BUCKET_NAME}
-gsutil uniformbucketlevelaccess set on gs://${BUCKET_NAME}
-gsutil iam ch allUsers:objectViewer gs://${BUCKET_NAME}
+gcloud storage buckets create gs://${BUCKET_NAME} --location=EU
+gcloud storage buckets update gs://${BUCKET_NAME} --uniform-bucket-level-access
+gcloud storage buckets add-iam-policy-binding gs://${BUCKET_NAME} --member=allUsers --role=roles/storage.objectViewer
 
 # Build the container
 export SERVICE_NAME=${SERVICE_SRC}-service
@@ -68,7 +68,7 @@ gcloud pubsub topics create ${TOPIC_NAME}
 
 # Create Pub/Sub notifications when files are stored in the bucket
 export BUCKET_PICTURES=uploaded-pictures-${GOOGLE_CLOUD_PROJECT}
-gsutil notification create -t ${TOPIC_NAME} -f json gs://${BUCKET_PICTURES}
+gcloud storage buckets notifications create gs://${BUCKET_PICTURES} --topic=${TOPIC_NAME} --payload-format=json
 
 # Create a service account to represent the Pub/Sub subscription identity
 export SERVICE_ACCOUNT=${TOPIC_NAME}-sa

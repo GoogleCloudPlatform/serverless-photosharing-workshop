@@ -104,9 +104,9 @@ export PROJECT_ID=$(gcloud config get-value project)
 
 # Create the GCS bucket
 export BUCKET_PICTURES=uploaded-pictures-${PROJECT_ID}
-gsutil mb -l EU gs://${BUCKET_PICTURES}
-gsutil uniformbucketlevelaccess set on gs://${BUCKET_PICTURES}
-gsutil iam ch allUsers:objectViewer gs://${BUCKET_PICTURES}
+gcloud storage buckets create gs://${BUCKET_PICTURES} --location=EU
+gcloud storage buckets update gs://${BUCKET_PICTURES} --uniform-bucket-level-access
+gcloud storage buckets add-iam-policy-binding gs://${BUCKET_PICTURES} --member=allUsers --role=objectViewer
 ```
 
 ## Create the database
@@ -124,7 +124,7 @@ gcloud config set eventarc/location europ-west1
 
 Grant `pubsub.publisher` to Cloud Storage service account
 ```
-SERVICE_ACCOUNT="$(gsutil kms serviceaccount -p ${PROJECT_ID})"
+SERVICE_ACCOUNT="$(gcloud storage service-agent --project=${PROJECT_ID})"
 
 gcloud projects add-iam-policy-binding ${PROJECT_ID} \
     --member="serviceAccount:${SERVICE_ACCOUNT}" \
@@ -182,7 +182,7 @@ gcloud eventarc triggers create image-analysis-native-trigger \
 
 Test the trigger
 ```
-gsutil cp GeekHour.jpeg gs://uploaded-pictures-${PROJECT_ID}
+gcloud storage cp GeekHour.jpeg gs://uploaded-pictures-${PROJECT_ID}
 
 gcloud logging read "resource.labels.service_name=image-analysis-jit AND textPayload:GeekHour" --format=json
 ```
@@ -265,4 +265,3 @@ Default
 Info
 2022-08-04T13:45:24.137495ZPOST200723 B1.1 sAPIs-Google; (+https://developers.google.com/webmasters/APIs-Google.html) https://image-analysis-jit-6hrfwttbsa-ew.a.run.app/?__GCP_CloudEventsMode=GCS_NOTIFICATION
 ```
-

@@ -27,9 +27,9 @@ gcloud services enable vision.googleapis.com
 export BUCKET_NAME=uploaded-pictures-${GOOGLE_CLOUD_PROJECT}
 export BUCKET_LOCATION=EU # EU, USA, ASIA
 
-gsutil mb -l ${BUCKET_LOCATION} gs://${BUCKET_NAME}
-gsutil uniformbucketlevelaccess set on gs://${BUCKET_NAME}
-gsutil iam ch allUsers:objectViewer gs://${BUCKET_NAME}
+gcloud storage buckets create gs://${BUCKET_NAME} --location=${BUCKET_LOCATION}
+gcloud storage buckets update gs://${BUCKET_NAME} --uniform-bucket-level-access
+gcloud storage buckets add-iam-policy-binding gs://${BUCKET_NAME} --member=allUsers --role=roles/storage.objectViewer
 
 # Create an App Engine app (requirement for Firestore) and Firestore
 export REGION=europe-west2
