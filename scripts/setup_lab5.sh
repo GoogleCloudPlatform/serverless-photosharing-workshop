@@ -47,13 +47,13 @@ export BUCKET_THUMBNAILS=thumbnails-${GOOGLE_CLOUD_PROJECT}
 ## Node.js
 gcloud run deploy ${SERVICE_NAME} \
     --image gcr.io/${GOOGLE_CLOUD_PROJECT}/${SERVICE_NAME} \
-    --allow-unauthenticated \
+    --no-allow-unauthenticated \
     --update-env-vars BUCKET_IMAGES=${BUCKET_IMAGES},BUCKET_THUMBNAILS=${BUCKET_THUMBNAILS}
 
 ## C#
 # gcloud run deploy ${SERVICE_NAME} \
 #     --image gcr.io/${GOOGLE_CLOUD_PROJECT}/${SERVICE_NAME} \
-#     --allow-unauthenticated \
+#     --no-allow-unauthenticated \
 #     --update-env-vars BUCKET_IMAGES=${BUCKET_IMAGES},BUCKET_THUMBNAILS=${BUCKET_THUMBNAILS},PROJECT_ID=${GOOGLE_CLOUD_PROJECT}
 
 # Set up Eventarc
@@ -64,6 +64,11 @@ export PROJECT_NUMBER="$(gcloud projects list --filter=$(gcloud config get-value
 gcloud projects add-iam-policy-binding $(gcloud config get-value project) \
     --member=serviceAccount:${PROJECT_NUMBER}-compute@developer.gserviceaccount.com \
     --role='roles/eventarc.eventReceiver'
+
+# Give default Compute service account run.invoker role to invoke garbage-collector
+gcloud run services add-iam-policy-binding ${SERVICE_NAME} \
+    --member=serviceAccount:${PROJECT_NUMBER}-compute@developer.gserviceaccount.com \
+    --role='roles/run.invoker'
 
 # Set eventarc/location
 gcloud config set eventarc/location ${REGION}

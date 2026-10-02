@@ -66,16 +66,16 @@ resource "google_cloud_run_service" "default" {
   #depends_on = [google_project_service.run]
 }
 
-# Make Cloud Run service publicly accessible
-resource "google_cloud_run_service_iam_member" "allUsers" {
+# Used to retrieve project_number below
+data "google_project" "project" {
+}
+
+# Authorize default Compute service account to invoke Cloud Run service
+resource "google_cloud_run_service_iam_member" "eventarc_invoker" {
   service  = google_cloud_run_service.default.name
   location = google_cloud_run_service.default.location
   role     = "roles/run.invoker"
-  member   = "allUsers"
-}
-
-# Used to retrieve project_number below
-data "google_project" "project" {
+  member   = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
 }
 
 # Give default Compute service account eventarc.eventReceiver role
