@@ -16,6 +16,8 @@ const bodyParser = require('body-parser');
 const im = require('imagemagick');
 const Promise = require("bluebird");
 const path = require('path');
+const crypto = require('crypto');
+const fs = require('fs').promises;
 const {Storage} = require('@google-cloud/storage');
 const storage = new Storage();
 const Firestore = require('@google-cloud/firestore');
@@ -36,25 +38,38 @@ app.post('/', async (req, res) => {
         const uploadedImagesBucket = storage.bucket(fileEvent.bucket);
         const thumbBucket = storage.bucket(process.env.BUCKET_THUMBNAILS);
 
-        const originalFile = path.resolve('/tmp/original', fileEvent.name);
-        const thumbFile = path.resolve('/tmp/thumbnail', fileEvent.name);
+        const rawExt = path.extname(fileEvent.name).toLowerCase();
+        const safeExt = /^\.[a-z0-9]+$/.test(rawExt) ? rawExt : '.jpg';
+        const randomFilename = `${crypto.randomBytes(16).toString('hex')}${safeExt}`;
 
-        await uploadedImagesBucket.file(fileEvent.name).download({
-            destination: originalFile
-        });
-        console.log(`Downloaded picture into ${originalFile}`);
+        const originalFile = path.join('/tmp/original', randomFilename);
+        const thumbFile = path.join('/tmp/thumbnail', randomFilename);
 
-        const resizeCrop = Promise.promisify(im.crop);
-        await resizeCrop({
-                srcPath: originalFile,
-                dstPath: thumbFile,
-                width: 400,
-                height: 400
-        });
-        console.log(`Created local thumbnail in ${thumbFile}`);
+        try {
+            await uploadedImagesBucket.file(fileEvent.name).download({
+                destination: originalFile
+            });
+            console.log(`Downloaded picture into ${originalFile}`);
 
-        await thumbBucket.upload(thumbFile);
-        console.log(`Uploaded thumbnail to Cloud Storage bucket ${process.env.BUCKET_THUMBNAILS}`);
+            const resizeCrop = Promise.promisify(im.crop);
+            await resizeCrop({
+                    srcPath: originalFile,
+                    dstPath: thumbFile,
+                    width: 400,
+                    height: 400
+            });
+            console.log(`Created local thumbnail in ${thumbFile}`);
+
+            await thumbBucket.upload(thumbFile, {
+                destination: fileEvent.name
+            });
+            console.log(`Uploaded thumbnail to Cloud Storage bucket ${process.env.BUCKET_THUMBNAILS}`);
+        } finally {
+            await Promise.all([
+                fs.unlink(originalFile).catch(() => {}),
+                fs.unlink(thumbFile).catch(() => {})
+            ]);
+        }
 
         const pictureStore = new Firestore().collection('pictures');
         const doc = pictureStore.doc(fileEvent.name);
