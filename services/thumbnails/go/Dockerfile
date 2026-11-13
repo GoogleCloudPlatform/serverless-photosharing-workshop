@@ -1,23 +1,26 @@
-FROM golang:1.11-buster AS builder
+FROM golang:1.22-bookworm AS builder
 
-# Install ImageMagick dev library
-RUN apt-get update && apt-get -q -y install libmagickwand-dev
+RUN apt-get update && apt-get -q -y install --no-install-recommends libmagickwand-dev && rm -rf /var/lib/apt/lists/*
 
-ADD go.* /app/
+COPY go.* /app/
 WORKDIR /app/
 RUN go mod download
-ADD . /app/
+COPY . /app/
 RUN go build -o main main.go
 
-# final stage
-FROM debian:buster-slim
+FROM debian:bookworm-slim
 
-# Install ImageMagick deps and ca-certificates
-RUN apt-get update && apt-get -q -y install \
+RUN apt-get update && apt-get -q -y install --no-install-recommends \
 	ca-certificates \
 	libmagickwand-6.q16-6 && \
-	rm -rf /var/lib/apt/lists/*
+	rm -rf /var/lib/apt/lists/* && \
+	useradd -r -u 10001 -g nogroup appuser && \
+	mkdir -p /tmp/original /tmp/thumbnail && \
+	chown -R appuser:nogroup /tmp/original /tmp/thumbnail
 
-COPY --from=builder /app/main ./
+COPY policy.xml /etc/ImageMagick-6/policy.xml
+WORKDIR /app
+COPY --from=builder /app/main /app/main
 
-ENTRYPOINT ["./main"]
+USER appuser
+ENTRYPOINT ["/app/main"]

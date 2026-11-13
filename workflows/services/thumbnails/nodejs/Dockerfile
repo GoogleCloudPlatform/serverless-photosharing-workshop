@@ -12,18 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM node:10-slim
+FROM node:20-bookworm-slim
 
-# installing Imagemagick
 RUN set -ex; \
   apt-get -y update; \
-  apt-get -y install imagemagick; \
+  apt-get -y install --no-install-recommends imagemagick; \
   rm -rf /var/lib/apt/lists/*; \
-  mkdir /tmp/original; \
-  mkdir /tmp/thumbnail;
+  mkdir -p /tmp/original /tmp/thumbnail /picadaily/services/thumbnails; \
+  chown -R node:node /tmp/original /tmp/thumbnail /picadaily
+
+COPY policy.xml /etc/ImageMagick-6/policy.xml
 
 WORKDIR /picadaily/services/thumbnails
-COPY package*.json ./
-RUN npm install --production
-COPY . .
+COPY --chown=node:node package*.json ./
+RUN npm install --omit=dev
+COPY --chown=node:node . .
+
+USER node
 CMD [ "npm", "start" ]

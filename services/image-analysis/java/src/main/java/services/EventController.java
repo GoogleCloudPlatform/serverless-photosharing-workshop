@@ -102,8 +102,36 @@ public class EventController {
     String msg = "Detected change in Cloud Storage bucket: (ce-subject) : " + ceSubject;
     System.out.println(msg);
 
-    String fileName = (String)body.get("name");
-    String bucketName = (String)body.get("bucket");
+    String expectedBucket = System.getenv("BUCKET_PICTURES");
+    if (expectedBucket == null || expectedBucket.isBlank()) {
+      logger.error("BUCKET_PICTURES environment variable is not configured.");
+      return new ResponseEntity<String>("Server misconfigured: missing BUCKET_PICTURES.", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    String ceType = headers.get("ce-type");
+    String ceSource = headers.get("ce-source");
+    String expectedSource = "//storage.googleapis.com/projects/_/buckets/" + expectedBucket;
+    if (!"google.cloud.storage.object.v1.finalized".equals(ceType) || !expectedSource.equals(ceSource)) {
+      logger.warn("Rejected unexpected CloudEvent type or source: type={}, source={}", ceType, ceSource);
+      return new ResponseEntity<String>("Invalid CloudEvent source or type.", HttpStatus.FORBIDDEN);
+    }
+
+    Object rawName = body.get("name");
+    Object rawBucket = body.get("bucket");
+    if (!(rawName instanceof String) || !(rawBucket instanceof String)) {
+      return new ResponseEntity<String>("Missing or invalid bucket/name in payload.", HttpStatus.BAD_REQUEST);
+    }
+
+    String fileName = (String) rawName;
+    String bucketName = (String) rawBucket;
+    if (!expectedBucket.equals(bucketName)) {
+      logger.warn("Rejected event for unexpected bucket: {}", bucketName);
+      return new ResponseEntity<String>("Unexpected bucket.", HttpStatus.FORBIDDEN);
+    }
+    if (!fileName.matches("^[A-Za-z0-9._-]{1,128}$") || fileName.contains("..")) {
+      logger.warn("Rejected unsafe object name: {}", fileName);
+      return new ResponseEntity<String>("Invalid object name.", HttpStatus.BAD_REQUEST);
+    }
 
     logger.info("New picture uploaded " + fileName);
 
@@ -111,7 +139,7 @@ public class EventController {
         List<AnnotateImageRequest> requests = new ArrayList<>();
         
         ImageSource imageSource = ImageSource.newBuilder()
-            .setGcsImageUri("gs://" + bucketName + "/" + fileName)
+            .setGcsImageUri("gs://" + expectedBucket + "/" + fileName)
             .build();
 
         Image image = Image.newBuilder()
