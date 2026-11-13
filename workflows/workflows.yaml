@@ -18,9 +18,18 @@ main:
         assign:
           - file: ${args.file}
           - bucket: ${args.bucket}
-          - gsUri: ${"gs://" + bucket + "/" + file}
           - projectId: ${sys.get_env("GOOGLE_CLOUD_PROJECT_ID")}
           - urls: ${args.urls}
+    - validateInput:
+        switch:
+          - condition: ${text.match_regex(file, "^[A-Za-z0-9._-]{1,128}$") and not(text.match_regex(file, "\\.\\."))}
+            next: buildGcsUri
+    - invalidFileName:
+        raise: ${"Invalid file name " + file}
+    - buildGcsUri:
+        assign:
+          - encodedFile: ${text.url_encode(file)}
+          - gsUri: ${"gs://" + bucket + "/" + file}
     - eventTypeSwitch:
         switch:
             - condition: ${args.eventType == "google.storage.object.finalize"}
@@ -64,12 +73,12 @@ main:
     - storeMetadata:
         call: http.request
         args:
-          url: ${"https://firestore.googleapis.com/v1/projects/" + projectId + "/databases/(default)/documents/pictures/" + file + "?updateMask.fieldPaths=color&updateMask.fieldPaths=labels&updateMask.fieldPaths=created"}
+          url: ${"https://firestore.googleapis.com/v1/projects/" + projectId + "/databases/(default)/documents/pictures/" + text.url_encode(file) + "?updateMask.fieldPaths=color&updateMask.fieldPaths=labels&updateMask.fieldPaths=created"}
           auth:
             type: OAuth2
           method: PATCH
           body:
-            name: ${"projects/" + projectId + "/databases/(default)/documents/pictures/" + file}
+            name: ${"projects/" + projectId + "/databases/(default)/documents/pictures/" + text.url_encode(file)}
             fields:
               color:
                 stringValue: ${imageMetadata.body.color}
@@ -105,7 +114,7 @@ main:
         try:
           call: http.request
           args:
-            url: ${"https://storage.googleapis.com/storage/v1/b/thumbnails-" + projectId + "/o/" + file}
+            url: ${"https://storage.googleapis.com/storage/v1/b/thumbnails-" + projectId + "/o/" + text.url_encode(file)}
             auth:
               type: OAuth2
             method: DELETE
@@ -121,11 +130,11 @@ main:
     - pictureGarbageCollectionFirestore:
         call: http.request
         args:
-          url: ${"https://firestore.googleapis.com/v1/projects/" + projectId + "/databases/(default)/documents/pictures/" + file}
+          url: ${"https://firestore.googleapis.com/v1/projects/" + projectId + "/databases/(default)/documents/pictures/" + text.url_encode(file)}
           auth:
             type: OAuth2
           method: DELETE
-        result: firestoreDeletionResult    
+        result: firestoreDeletionResult
     - deleteCompleted:
         return:
           gcsDeletion: ${gcsDeletionResult.code}

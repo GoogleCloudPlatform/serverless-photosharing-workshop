@@ -24,6 +24,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
+using SixLabors.ImageSharp.Memory;
 using SixLabors.ImageSharp.Processing;
 
 namespace QueryRunner
@@ -39,6 +41,14 @@ namespace QueryRunner
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
+            Configuration.Default.MemoryAllocator = MemoryAllocator.Create(new MemoryAllocatorOptions
+            {
+                MaximumPoolSizeMegabytes = 64,
+            });
+            var decoderOptions = new DecoderOptions
+            {
+                MaxFrames = 1,
+            };
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -86,7 +96,7 @@ namespace QueryRunner
                         using (var outputStream = new MemoryStream())
                         {
                             inputStream.Position = 0; // Reset to read
-                            using (Image image = Image.Load(inputStream))
+                            using (Image image = Image.Load(decoderOptions, inputStream))
                             {
                                 image.Mutate(x => x
                                     .Resize(ThumbWidth, ThumbHeight)

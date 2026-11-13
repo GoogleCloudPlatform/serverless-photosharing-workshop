@@ -1,12 +1,15 @@
 management:
   endpoint:
     health:
-      show-details: ALWAYS
+      enabled: true
+      show-details: NEVER
+    startup:
+      enabled: true
   health:
-    diskspace:  
+    diskspace:
       enabled: false
   endpoints:
-    enabled-by-default: true
+    enabled-by-default: false
     web:
       exposure:
-        include: "*"
+        include: "health,startup"

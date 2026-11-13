@@ -24,6 +24,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
+using SixLabors.ImageSharp.Memory;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
@@ -31,12 +33,21 @@ namespace QueryRunner
 {
     public class Startup
     {
+        private static readonly DecoderOptions SafeDecoderOptions = new DecoderOptions
+        {
+            MaxFrames = 1,
+        };
+
         public void ConfigureServices(IServiceCollection services)
         {
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
+            Configuration.Default.MemoryAllocator = MemoryAllocator.Create(new MemoryAllocatorOptions
+            {
+                MaximumPoolSizeMegabytes = 64,
+            });
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -101,10 +112,10 @@ namespace QueryRunner
         private async Task CreateCollage(List<MemoryStream> memoryStreams, string bucket, ILogger logger)
         {
             memoryStreams.ForEach(memoryStream => memoryStream.Position = 0);
-            using (var img0 = Image.Load(memoryStreams[0]))
-            using (var img1 = Image.Load(memoryStreams[1]))
-            using (var img2 = Image.Load(memoryStreams[2]))
-            using (var img3 = Image.Load(memoryStreams[3]))
+            using (var img0 = Image.Load(SafeDecoderOptions, memoryStreams[0]))
+            using (var img1 = Image.Load(SafeDecoderOptions, memoryStreams[1]))
+            using (var img2 = Image.Load(SafeDecoderOptions, memoryStreams[2]))
+            using (var img3 = Image.Load(SafeDecoderOptions, memoryStreams[3]))
             using (var outputStream = new MemoryStream())
             using (var outputImage = new Image<Rgba32>(800, 800))
             {

@@ -137,12 +137,14 @@ Deploy
 gcloud run deploy image-analysis-jit \
      --image gcr.io/${PROJECT_ID}/image-analysis-maven-jit \
      --region europe-west1 \
-     --memory 2Gi --allow-unauthenticated
+     --set-env-vars BUCKET_PICTURES=uploaded-pictures-${PROJECT_ID} \
+     --memory 2Gi --no-allow-unauthenticated
 
 gcloud run deploy image-analysis-native \
      --image gcr.io/${PROJECT_ID}/image-analysis-maven-native \
      --region europe-west1 \
-     --memory 2Gi --allow-unauthenticated  
+     --set-env-vars BUCKET_PICTURES=uploaded-pictures-${PROJECT_ID} \
+     --memory 2Gi --no-allow-unauthenticated
 
 # JIT image
 docker tag image-analysis-maven-jit gcr.io/${GOOGLE_CLOUD_PROJECT}/image-analysis-maven-jit
